@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType><TargetFramework>net10.0</TargetFramework><UseAppHost>true</UseAppHost>
+    <AssemblyName>NianDeskLink</AssemblyName><RootNamespace>DesktopToolbox.Mac</RootNamespace><Version>0.8.4</Version>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <AvaloniaUseCompiledBindingsByDefault>false</AvaloniaUseCompiledBindingsByDefault>
+    <ApplicationManifest>../DesktopToolbox.Mac/app.manifest</ApplicationManifest>
+    <DefineConstants>$(DefineConstants);MULTI_DEVICE_CANDIDATE;DISCOVERY_CANDIDATE</DefineConstants>
+    <DefineConstants Condition="'$(NianFilelessPairingCandidate)' == 'true'">$(DefineConstants);FILELESS_PAIRING_CANDIDATE</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(NianMacReturnResearch)' == 'true'">
+    <DefineConstants>$(DefineConstants);NIAN_MAC_RETURN_RESEARCH</DefineConstants>
+  </PropertyGroup>
+  <Target Name="RequireIsolatedMacReturnResearch" BeforeTargets="PrepareForBuild" Condition="'$(NianMacReturnResearch)' == 'true'">
+    <Error Condition="'$(UseArtifactsOutput)' != 'true' Or '$(ArtifactsPath)' == ''" Text="Mac return research requires explicitly isolated artifacts." />
+    <PropertyGroup><MacReturnResearchAbsolute>$([System.IO.Path]::GetFullPath('$(ArtifactsPath)'))</MacReturnResearchAbsolute><MacReturnResearchRoot>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)../../tests/.work/'))</MacReturnResearchRoot></PropertyGroup>
+    <Error Condition="!$([System.String]::Copy('$(MacReturnResearchAbsolute)').StartsWith('$(MacReturnResearchRoot)', System.StringComparison.OrdinalIgnoreCase))" Text="Mac return research artifacts must be below tests/.work." />
+  </Target>
+  <ItemGroup Condition="'$(NianFilelessPairingCandidate)' == 'true' And '$(NianFilelessPairingIsolatedTest)' == 'true'"><AssemblyMetadata Include="NianFilelessPairingCandidate" Value="true" /></ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="12.1.4"/>
+    <PackageReference Include="Avalonia.Desktop" Version="12.1.4"/>
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.4"/>
+    <ProjectReference Include="../DesktopToolbox.DeskLink/DesktopToolbox.DeskLink.csproj"/>
+    <ProjectReference Include="../Nian.Input.Mac/Nian.Input.Mac.csproj"/>
+    <ProjectReference Include="../Nian.Input.Runtime/Nian.Input.Runtime.csproj"/>
+    <ProjectReference Include="../NianLink.MacResponderCandidate/NianLink.MacResponderCandidate.csproj"/>
+    <Compile Include="../DesktopToolbox.Mac/**/*.cs" Exclude="../DesktopToolbox.Mac/Tests/**;../DesktopToolbox.Mac/bin/**;../DesktopToolbox.Mac/obj/**" Link="%(RecursiveDir)%(Filename)%(Extension)"/>
+    <Compile Include="../NianLink.MultiDevice.Shared/PeerControlOwner.cs" Link="PeerControlOwner.cs"/>
+    <Compile Include="DiscoveryUiController.cs"/>
+    <Compile Include="LiveMacDiscoveryBackend.cs"/>
+    <AvaloniaResource Include="../DesktopToolbox.Mac/App.axaml" Link="App.axaml"/>
+    <AvaloniaResource Include="../DesktopToolbox.Mac/Themes/DeskLinkTheme.axaml" Link="Themes/DeskLinkTheme.axaml"/>
+    <AvaloniaResource Include="../DesktopToolbox.Mac/Assets/NianLinkBrand.png" Link="Assets/NianLinkBrand.png"/>
+    <None Include="../DesktopToolbox.Collaboration.Ui/**/*" Link="CollaborationUi/%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest"/>
+  </ItemGroup>
+</Project>

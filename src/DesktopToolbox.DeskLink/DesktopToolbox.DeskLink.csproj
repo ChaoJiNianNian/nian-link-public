@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><TargetFramework>net10.0</TargetFramework></PropertyGroup>
+  <PropertyGroup Condition="'$(NianFenceResearchIsolatedTest)' == 'true'">
+    <DefineConstants>$(DefineConstants);NIAN_FENCE_RESEARCH</DefineConstants>
+    <_FenceIsolatedRoot>$([System.String]::Copy('$([MSBuild]::NormalizeDirectory("$(MSBuildThisFileDirectory)../../tests/.work"))').ToUpperInvariant())</_FenceIsolatedRoot>
+    <_FenceIsolatedArtifacts Condition="'$(ArtifactsPath)' != ''">$([System.String]::Copy('$([MSBuild]::NormalizeDirectory("$(ArtifactsPath)"))').ToUpperInvariant())</_FenceIsolatedArtifacts>
+  </PropertyGroup>
+  <Target Name="RequireIsolatedFenceResearchArtifacts" BeforeTargets="PrepareForBuild" Condition="'$(NianFenceResearchIsolatedTest)' == 'true'">
+    <Error Condition="'$(UseArtifactsOutput)' != 'true' Or '$(_FenceIsolatedArtifacts)' == ''" Text="Fence research requires isolated test artifacts." />
+    <Error Condition="!$([System.String]::Copy('$(_FenceIsolatedArtifacts)').StartsWith('$(_FenceIsolatedRoot)'))" Text="Fence research artifacts must remain inside tests/.work." />
+  </Target>
+  <ItemGroup Condition="'$(NianFenceResearchIsolatedTest)' == 'true'">
+    <AssemblyMetadata Include="NianFenceResearchRoot" Value="$([MSBuild]::NormalizeDirectory('$(MSBuildThisFileDirectory)../../tests/.work/fence-real-server'))" />
+  </ItemGroup>
+  <PropertyGroup Condition="'$(NianFilelessPairingCandidate)' == 'true' And '$(NianFilelessPairingIsolatedTest)' == 'true'">
+    <DefineConstants>$(DefineConstants);FILELESS_PAIRING_ISOLATED_TEST</DefineConstants>
+    <_NianIsolatedRoot>$([System.String]::Copy('$([MSBuild]::NormalizeDirectory("$(MSBuildThisFileDirectory)../../tests/.work"))').ToUpperInvariant())</_NianIsolatedRoot>
+    <_NianIsolatedArtifacts Condition="'$(ArtifactsPath)' != ''">$([System.String]::Copy('$([MSBuild]::NormalizeDirectory("$(ArtifactsPath)"))').ToUpperInvariant())</_NianIsolatedArtifacts>
+  </PropertyGroup>
+  <Target Name="RequireIsolatedFilelessArtifacts" BeforeTargets="PrepareForBuild"
+    Condition="'$(NianFilelessPairingCandidate)' == 'true' And '$(NianFilelessPairingIsolatedTest)' == 'true'">
+    <Error Condition="'$(UseArtifactsOutput)' != 'true' Or '$(_NianIsolatedArtifacts)' == ''"
+      Text="The fileless test gate requires a separate artifacts path inside tests/.work." />
+    <Error Condition="!$([System.String]::Copy('$(_NianIsolatedArtifacts)').StartsWith('$(_NianIsolatedRoot)'))"
+      Text="The fileless test artifacts path must remain inside tests/.work." />
+  </Target>
+  <ItemGroup Condition="'$(NianFilelessPairingCandidate)' == 'true' And '$(NianFilelessPairingIsolatedTest)' == 'true'">
+    <InternalsVisibleTo Include="FilelessCandidateIntegration.Tests" />
+    <AssemblyMetadata Include="NianFilelessPairingIsolatedTest" Value="true" />
+  </ItemGroup>
+  <ItemGroup><ProjectReference Include="../Nian.Input.Control/Nian.Input.Control.csproj"/><ProjectReference Include="../Nian.Input.Security/Nian.Input.Security.csproj"/></ItemGroup>
+  <ItemGroup><InternalsVisibleTo Include="DeskLink.Tests"/><InternalsVisibleTo Include="MultiPeerTrust.Tests"/><InternalsVisibleTo Include="MultiDevice.Windows.Tests"/><InternalsVisibleTo Include="NianLink.CandidateDiscovery"/><InternalsVisibleTo Include="NianLink.MacResponderCandidate"/><InternalsVisibleTo Include="ConditionalCommitIsolation.Tests"/></ItemGroup>
+</Project>

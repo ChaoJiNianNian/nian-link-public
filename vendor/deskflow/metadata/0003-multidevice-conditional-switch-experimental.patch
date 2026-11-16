@@ -1,0 +1,56 @@
+diff --git a/src/lib/deskflow/control/DeskToolboxControl.cpp b/src/lib/deskflow/control/DeskToolboxControl.cpp
+--- a/src/lib/deskflow/control/DeskToolboxControl.cpp
++++ b/src/lib/deskflow/control/DeskToolboxControl.cpp
+@@ -110,13 +110,26 @@
+     reject(socket, id, "unsupported_version"); return;
+   }
+   const auto action = request.value("action").toString();
+-  if (action != "state" && action != "switch") { reject(socket, id, "invalid_action"); return; }
++  if (action != "state" && action != "switch" && action != "switch-if-current") { reject(socket, id, "invalid_action"); return; }
+   const auto target = request.value("target");
+-  if (action == "switch" && (!target.isString() || target.toString().isEmpty() || target.toString().toUtf8().size() > 255)) {
++  if ((action == "switch" || action == "switch-if-current") &&
++      (!target.isString() || target.toString().isEmpty() || target.toString().toUtf8().size() > 255)) {
+     reject(socket, id, "invalid_target"); return;
+   }
++  if (action == "switch-if-current") {
++    const auto expectedActive = request.value("expectedActive");
++    const auto expectedRevision = request.value("expectedRevision");
++    static const QRegularExpression namePattern(QStringLiteral("\\A[A-Za-z0-9_.-]{1,64}\\z"));
++    const auto revision = expectedRevision.toInteger(-1);
++    if (!expectedActive.isString() || !namePattern.match(expectedActive.toString()).hasMatch() ||
++        !expectedRevision.isDouble() || revision < 0 || revision > 9007199254740991LL ||
++        expectedRevision.toDouble() != static_cast<double>(revision)) {
++      reject(socket, id, "invalid_expected_state"); return;
++    }
++  }
+   for (const auto &key : request.keys()) {
+-    if (key != "version" && key != "requestId" && key != "action" && key != "target") {
++    const auto expectedField = action == "switch-if-current" && (key == "expectedActive" || key == "expectedRevision");
++    if (key != "version" && key != "requestId" && key != "action" && key != "target" && !expectedField) {
+       reject(socket, id, "unknown_field"); return;
+     }
+   }
+diff --git a/src/apps/deskflow-core/deskflow-core.cpp b/src/apps/deskflow-core/deskflow-core.cpp
+--- a/src/apps/deskflow-core/deskflow-core.cpp
++++ b/src/apps/deskflow-core/deskflow-core.cpp
+@@ -155,7 +155,18 @@
+         bool ok = true;
+         std::string error;
+         try {
+-          if (data->request.value("action").toString() == "switch")
++          const auto action = data->request.value("action").toString();
++          if (action == "switch-if-current") {
++            // The check and switch run on the same native EventQueue thread.
++            const auto current = server->controlState();
++            const auto expected = static_cast<std::uint64_t>(data->request.value("expectedRevision").toInteger(-1));
++            if (current.revision != expected || current.activeComputer != data->request.value("expectedActive").toString().toStdString()) {
++              ok = false;
++              error = "focus_changed";
++            } else {
++              ok = server->controlSwitchTo(data->request.value("target").toString().toStdString(), error);
++            }
++          } else if (action == "switch")
+             ok = server->controlSwitchTo(data->request.value("target").toString().toStdString(), error);
+         } catch (const std::exception &) { ok = false; error = "switch_failed"; }
+         response = controlSnapshot(server->controlState());

@@ -1,0 +1,72 @@
+name: Managed source checks
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  managed:
+    runs-on: windows-2025
+    timeout-minutes: 30
+    env:
+      DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+      DOTNET_SKIP_FIRST_TIME_EXPERIENCE: '1'
+      DOTNET_NOLOGO: '1'
+    steps:
+      - name: Checkout source without persisted credentials
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+      - name: Install .NET SDK
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          dotnet-version: '10.0.404'
+      - name: Pin the SDK in this disposable checkout
+        shell: pwsh
+        run: |
+          if (Test-Path -LiteralPath 'global.json') { throw 'Review the existing SDK configuration before changing CI.' }
+          '{"sdk":{"version":"10.0.404","rollForward":"disable"}}' | Set-Content -LiteralPath 'global.json' -Encoding utf8
+      - name: Check workflow policy
+        run: python -B -m unittest discover -s tests -p test_ci_workflow.py
+      - name: Check source candidate
+        run: python -B -m unittest discover -s tests -p test_public_source_candidate.py
+      - name: Check reviewed UI screenshots
+        run: python -B -m unittest discover -s tests -p test_github_screenshots.py
+      - name: Check Qt configure evidence
+        run: python -B -m unittest discover -s tests -p test_qt_config_summary.py
+      - name: Check native clean build workflow
+        run: python -B -m unittest discover -s tests -p test_github_native_clean_build.py
+      - name: Check native core build entry
+        run: python -B -m unittest discover -s tests -p test_native_core_build.py
+      - name: Check official Qt archive verifier
+        run: python -B -m unittest discover -s tests -p test_verify_qt_official_archive.py
+      - name: Check Qt PE normalization
+        run: python -B -m unittest discover -s tests -p test_qt_pe_unsigned_hash.py
+      - name: Check managed runtime notices
+        run: python -B -m unittest discover -s tests -p test_managed_runtime_notices.py
+      - name: Check Deskflow PE provenance tool
+        run: python -B -m unittest discover -s tests/experiments/DeskflowPeProvenance -p test_compare_pe.py
+      - name: Check QtTools notices
+        run: python -B -m unittest discover -s tests -p test_qttools_notice_integrity.py
+      - name: Check .NET notices
+        run: python -B -m unittest discover -s tests -p test_dotnet_notice_integrity.py
+      - name: Check source fetcher
+        run: python -B -m unittest discover -s tests -p test_fetch_upstream_sources.py
+      - name: Check SDK pins
+        run: python -B -m unittest discover -s tests -p test_sdk_baseline.py
+      - name: Check portable test fixtures
+        run: python -B -m unittest discover -s tests -p test_source_portability_inclusion.py
+      - name: Check Git source bytes
+        run: python -B -m unittest discover -s tests -p test_source_bytes_policy.py
+      - name: Cross-compile the Mac managed source
+        run: python scripts/build-managed.py --target mac
+      - name: Build isolated Windows multi-device candidate
+        run: python scripts/build-managed.py --target windows --multi-device
+      - name: Cross-compile isolated Mac multi-device candidate
+        run: python scripts/build-managed.py --target mac --multi-device
+      - name: Build Windows source and run shared tests
+        run: python scripts/build-managed.py --target windows --with-tests

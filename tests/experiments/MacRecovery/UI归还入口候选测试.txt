@@ -1,0 +1,28 @@
+此片段为尚未实现的 Headless UI 实验，不纳入默认测试。恢复入口仍须先解决 Begin 与 Read 请求乱序；不可作为归还成功或功能完成的证据。
+调用位置：await VerifyPendingStopRecoveryWindowAsync();
+
+    private static async Task VerifyPendingStopRecoveryWindowAsync()
+    {
+        var window = new MacMultiDeviceWindow(Path.Combine(AppContext.BaseDirectory, "unused-recovery-profile"), true, new FakeVault()) { ShowInTaskbar = false };
+        window.Show();
+        window.IsEnabled = false; // A real Stop runs while the main window is busy.
+        var returned = 0;
+        var stop = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        Func<Task> recover = () => { returned++; stop.TrySetResult(); return Task.CompletedTask; };
+        var method = typeof(MacMultiDeviceWindow).GetMethod("WaitForCollaborationStopAsync", BindingFlags.NonPublic | BindingFlags.Instance)
+            ?? throw new InvalidOperationException("Pending stop does not expose the recovery window.");
+        var waiting = (Task)method.Invoke(window, [stop.Task, recover])!;
+        var field = typeof(MacMultiDeviceWindow).GetField("remoteReturn", BindingFlags.NonPublic | BindingFlags.Instance)!;
+        var recovery = (MacRemotePreviewReturnWindow?)field.GetValue(window)
+            ?? throw new InvalidOperationException("Missing independent recovery window.");
+        recovery.UpdateLayout();
+        var button = recovery.GetVisualDescendants().OfType<Button>().Single();
+        if (!button.IsEffectivelyEnabled || !recovery.IsVisible || waiting.IsCompleted)
+            throw new InvalidOperationException("Recovery is unavailable while stop is waiting.");
+        button.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+        await waiting.WaitAsync(TimeSpan.FromSeconds(5));
+        if (returned != 1) throw new InvalidOperationException("The recovery action did not unblock stopping.");
+        window.IsEnabled = true;
+        window.Close();
+        Console.WriteLine("Pending stop: independent recovery remains actionable and releases waiting.");
+    }

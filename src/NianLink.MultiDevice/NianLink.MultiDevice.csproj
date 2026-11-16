@@ -1,0 +1,42 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <SupportedOSPlatformVersion>10.0.19041.0</SupportedOSPlatformVersion>
+    <ApplicationIcon>../../assets/brand/NianLink.ico</ApplicationIcon>
+    <DefineConstants>$(DefineConstants);NIAN_MULTIDEVICE_UI</DefineConstants>
+  </PropertyGroup>
+  <Target Name="RejectFilelessIsolatedTestOnFormalBuild" BeforeTargets="PrepareForBuild" Condition="'$(NianFilelessPairingIsolatedTest)' == 'true'">
+    <Error Text="The isolated fileless test gate cannot be enabled for the formal multi-device project." />
+  </Target>
+  <ItemGroup>
+    <ProjectReference Include="../DesktopToolbox.DeskLink/DesktopToolbox.DeskLink.csproj" />
+    <ProjectReference Include="../NianLink.CandidateDiscovery/NianLink.CandidateDiscovery.csproj" />
+    <ProjectReference Include="../DesktopToolbox.Windows/DesktopToolbox.Windows.csproj" />
+    <ProjectReference Include="../DesktopToolbox.DisplayBridge/DesktopToolbox.DisplayBridge.csproj" ReferenceOutputAssembly="false" />
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.4258.31" />
+    <Compile Include="../NianLink.Windows/WindowsCredentialProtector.cs" Link="WindowsCredentialProtector.cs" />
+    <Compile Include="../NianLink.Windows/DisplayInputSelection.cs" Link="DisplayInputSelection.cs" />
+    <Compile Include="../DesktopToolbox.App/Hosting/NativePrompts.cs" Link="Hosting/NativePrompts.cs" />
+    <Compile Include="../DesktopToolbox.App/DeskLink/DetachedPreviewWindow.cs" Link="Preview/DetachedPreviewWindow.cs" />
+    <Compile Include="../DesktopToolbox.App/DeskLink/DetachedPreviewWindow.Input.cs" Link="Preview/DetachedPreviewWindow.Input.cs" />
+    <Compile Include="../DesktopToolbox.App/DeskLink/DetachedPreviewWindow.LivePreview.cs" Link="Preview/DetachedPreviewWindow.LivePreview.cs" />
+    <Compile Include="../DesktopToolbox.App/DeskLink/WpfLivePreviewDecoder.cs" Link="Preview/WpfLivePreviewDecoder.cs" />
+    <Compile Include="../DesktopToolbox.App/DeskLink/Mini*.cs" Link="Mini/%(Filename)%(Extension)" />
+    <Compile Include="../DesktopToolbox.App/DeskLink/MultiRecipientBarrier.cs" Link="Mini/MultiRecipientBarrier.cs" />
+    <Compile Include="../DesktopToolbox.App/Drawer/DrawerWindowPolicy.cs" Link="Mini/DrawerWindowPolicy.cs" />
+    <Compile Include="../DesktopToolbox.App/Drawer/DrawerDesktopEnvironment.cs" Link="Mini/DrawerDesktopEnvironment.cs" />
+    <Compile Include="../NianLink.Windows/NativeMaterial.cs" Link="Mini/NativeMaterial.cs" />
+    <Resource Include="../../assets/brand/NianLinkBrand.png" Link="Assets/NianLinkBrand.png" />
+    <Content Include="../DesktopToolbox.Collaboration.Ui/**/*" Link="CollaborationUi/%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <Content Include="../NianLink.MultiDevice/mini-windows.css" Link="CollaborationUi/mini-windows.css" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+  <Target Name="CopyDisplayBridge" AfterTargets="Build">
+    <ItemGroup><DisplayBridgeFiles Include="../DesktopToolbox.DisplayBridge/bin/$(Configuration)/$(TargetFramework)/$(RuntimeIdentifier)/DisplayBridge.exe;../DesktopToolbox.DisplayBridge/bin/$(Configuration)/$(TargetFramework)/$(RuntimeIdentifier)/DisplayBridge.dll;../DesktopToolbox.DisplayBridge/bin/$(Configuration)/$(TargetFramework)/$(RuntimeIdentifier)/DisplayBridge.deps.json;../DesktopToolbox.DisplayBridge/bin/$(Configuration)/$(TargetFramework)/$(RuntimeIdentifier)/DisplayBridge.runtimeconfig.json" /></ItemGroup>
+    <Copy SourceFiles="@(DisplayBridgeFiles)" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true" />
+  </Target>
+</Project>

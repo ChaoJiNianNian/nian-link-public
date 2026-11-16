@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <SupportedOSPlatformVersion>10.0.19041.0</SupportedOSPlatformVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="MultiDevice.Windows.Tests" />
+    <InternalsVisibleTo Include="NianLink.MultiDevice" />
+    <ProjectReference Include="../DesktopToolbox.Core/DesktopToolbox.Core.csproj" />
+    <ProjectReference Include="../DesktopToolbox.DeskLink/DesktopToolbox.DeskLink.csproj" />
+    <ProjectReference Include="../Nian.Input.Windows/Nian.Input.Windows.csproj" />
+    <ProjectReference Include="../Nian.Input.Runtime/Nian.Input.Runtime.csproj" />
+  </ItemGroup>
+</Project>

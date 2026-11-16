@@ -1,0 +1,1 @@
+Windows and macOS .NET 10.0.15 runtime license and notice material, reproduced unchanged from independently verified NuGet archives. See source-manifest.json for package and file hashes. Signature verification uses the local host trust configuration. This material alone does not establish full distribution compliance.

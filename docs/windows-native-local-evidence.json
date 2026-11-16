@@ -1,0 +1,171 @@
+{
+  "scope": "isolated local Windows x64 native source compilation; not a cloud runner or release",
+  "completion": {
+    "report_complete": true,
+    "core_report_complete": true,
+    "exit_status_observed_in_tool_session": 0,
+    "independent_exit_status_file": false
+  },
+  "raw_completion_report_sha256": "0789f22109681761cf9b2f330ead7d36e6965292bb0c82f26d1443fcc6df36b7",
+  "local_script_sha256": "b3a3ac126e650fce436519b768dc7aa242303a2b96fefcdb351b1127523857d5",
+  "local_source_fetch_stub_sha256": "5780091ece6319e684dfa004ce216e96343214c17364e80d6d609689135d598e",
+  "core_build_script_sha256": "d391cd16fc035b14009a44bb54008042b39c3c60ff07b4a5725cc90e71497132",
+  "source_method": "local stub returns earlier fixed-hash verified official source archives; no network download or prior build products reused during this run",
+  "output_layout": "local-only shorter output name .artifacts/nc/b-<uuid>; differs from repository entry point",
+  "sources_sha256": {
+    "deskflow-v1.27.0-source.zip": "8493dfa58dbeac161a8b25d5b3cb7cb8546b5f4d99a216fcd65296b220a864f0",
+    "qtbase-everywhere-src-6.8.3.tar.xz": "56001b905601bb9023d399f3ba780d7fa940f3e4861e496a7c490331f49e0b80",
+    "qttools-everywhere-src-6.8.3.tar.xz": "02a4e219248b94f1333df843d25763f35251c1074cdc4fb5bda67d340f8c8b3a",
+    "openssl-3.5.9.tar.gz": "603f5602e2eef00d77fbd429d34dcd5822bb301757a1bc9cdb24c670f1eb859a"
+  },
+  "patches": [
+    {
+      "name": "0001-current-user-native-control.patch",
+      "sha256": "4553424fcf97b368c4356d647d5ed25b7e529daba1b00fe4cebd6a8f047e5324"
+    },
+    {
+      "name": "0002-preview-input-isolation-experimental.patch",
+      "sha256": "0c0f7937ddf61311415806da3f2fa37c310b3e089a98a7b5933e0daa16f4ffce"
+    },
+    {
+      "name": "0003-multidevice-conditional-switch-experimental.patch",
+      "sha256": "c25888d4f6d952dcb85872173b82414ac8e3d1abd20e2ebf6f59c671118e9d1c"
+    },
+    {
+      "name": "0004-multidevice-identity-binding-experimental.patch",
+      "sha256": "67bfc277bd5be9cd95eeeea664988aeccb9d01e8a9d3b34b4383a70339c0d58c"
+    }
+  ],
+  "platform": "Windows-11-10.0.26200-SP0",
+  "tool_versions_and_executable_hashes": {
+    "git": {
+      "version": "2.53.0",
+      "executable_sha256": "da240fe9bc24895b3e04150a4990b8a6ff329ecabcd8f19684c2cc310da5ef3f"
+    },
+    "cmake": {
+      "version": "4.4.1",
+      "executable_sha256": "d89963f5b90757a8b0f5164c1eea924e82a786b96dbd7657bf4c4c74a5e53c82"
+    },
+    "ninja": {
+      "version": "1.13.2",
+      "executable_sha256": "c6c2c6251a05662af889d5e33dec581b5939015032f2ddc98728164fe5e784e1"
+    },
+    "perl": {
+      "version": "5.34.3",
+      "executable_sha256": "bd390b31b0bb5da76b55197beed7d8d9d97fc5a99abeb6b927a631e99de6fb16"
+    },
+    "nmake": {
+      "version": "14.44.35229.0",
+      "executable_sha256": "ce6b50c2d8e6704b671ec116e52ce9d2fbc1d20dd28c5b895b5421adddf94ebb"
+    },
+    "cl": {
+      "version": "19.44.35229",
+      "executable_sha256": "fe251ef50a1545b1b0835ee17b1e785459712b38d79e45b5c1d3d28970a36619"
+    }
+  },
+  "toolchain_environment": {
+    "VSCMD_VER": "",
+    "VSCMD_ARG_TGT_ARCH": "x64",
+    "WindowsSDKVersion": "",
+    "VisualStudioVersion": ""
+  },
+  "sdk_include_rc_mt_path_version_observed": "10.0.26100.0",
+  "sdk_lib_path_version": "unverified; library paths do not contain a version",
+  "qtbase_openssl_cache_entries": 4,
+  "qttools_qt_cache_entries": 18,
+  "core_checked_cmake_dependency_entries": 17,
+  "qtbase_config_summary_sha256": "5914bff0c0c46b2ccf4758a35553863caf45dc829f69434ed20dc8fba739550a",
+  "qttools_config_summary_sha256": "f06ca79eeff6a0f41ced5929a67568d38e0b920cb42c29028ec1dbd4ff8e530b",
+  "logs": {
+    "deskflow-core.log": {
+      "sha256": "9322c9419807a4522d2c55f1e9d8e3c589daf4456d432a4f23fc92eae1ec3a9e",
+      "bytes": 155,
+      "msvc_warning_count": 0,
+      "cmake_warning_count": 0,
+      "nul_count": 0,
+      "fatal_error_mentions": 0
+    },
+    "openssl-build.log": {
+      "sha256": "4d150e900dcd1279ba7b0e7f8b1900cef3af206329670adc64dd3287b8b5e49a",
+      "bytes": 4091000,
+      "msvc_warning_count": 1751,
+      "cmake_warning_count": 0,
+      "nul_count": 0,
+      "fatal_error_mentions": 0
+    },
+    "openssl-configure.log": {
+      "sha256": "21a350e055dec47bd112c14f20dce858a01ddb326fff8ee57a8f065910044b1b",
+      "bytes": 1766,
+      "msvc_warning_count": 0,
+      "cmake_warning_count": 0,
+      "nul_count": 0,
+      "fatal_error_mentions": 0
+    },
+    "openssl-install.log": {
+      "sha256": "afc51b62188dba30d8718ed7861e2a118f038a889be4166fe13788bad74f9c16",
+      "bytes": 67697,
+      "msvc_warning_count": 0,
+      "cmake_warning_count": 0,
+      "nul_count": 0,
+      "fatal_error_mentions": 0
+    },
+    "qtbase-build.log": {
+      "sha256": "b92e805af299281876c112259e5d8a5f917aee5f811a93e0f5f0dd4aefb7082c",
+      "bytes": 184889,
+      "msvc_warning_count": 0,
+      "cmake_warning_count": 0,
+      "nul_count": 0,
+      "fatal_error_mentions": 0
+    },
+    "qtbase-configure.log": {
+      "sha256": "d2d64d566fc3b2b05a8a08bab84454b4ce40aa113f04db19df4890dda04f3878",
+      "bytes": 3446,
+      "msvc_warning_count": 0,
+      "cmake_warning_count": 2,
+      "nul_count": 0,
+      "fatal_error_mentions": 0
+    },
+    "qtbase-install.log": {
+      "sha256": "79c7e4206091e275650f3141921d81c95cfbba2cc4c7a2024c8a2821c844e5d7",
+      "bytes": 647770,
+      "msvc_warning_count": 0,
+      "cmake_warning_count": 0,
+      "nul_count": 0,
+      "fatal_error_mentions": 0
+    },
+    "qttools-build.log": {
+      "sha256": "57e20ac93b57ac211bce31ed79a48ab878d02858cbd4f21c5e342f1a3917e089",
+      "bytes": 69116,
+      "msvc_warning_count": 0,
+      "cmake_warning_count": 0,
+      "nul_count": 0,
+      "fatal_error_mentions": 0
+    },
+    "qttools-configure.log": {
+      "sha256": "07b7852d55f4c55da1c0248fe922815f16f7a82881a20a8b2ddfb37da70e06bb",
+      "bytes": 5698,
+      "msvc_warning_count": 0,
+      "cmake_warning_count": 2,
+      "nul_count": 0,
+      "fatal_error_mentions": 0
+    },
+    "qttools-install.log": {
+      "sha256": "279396a3dceebf36d7915a0e1a5232faec5682ce3a38b6f65180e6b6af718a60",
+      "bytes": 77499,
+      "msvc_warning_count": 0,
+      "cmake_warning_count": 0,
+      "nul_count": 0,
+      "fatal_error_mentions": 0
+    }
+  },
+  "core_sha256": "265b04d3edc62d231ed5e2b8bfdf4ad94a2e3c6935fc8a0b3b415c6a65b8220c",
+  "core_bytes": 1118208,
+  "boundaries": [
+    "existing host toolchain and preverified sources; not a clean VM",
+    "script source-order quirk caused cl and nmake version banner to follow help output; version values above derived from complete recorded output",
+    "QtBase and QtTools compiled; no device, runtime, installer, release, signing or reproducibility test",
+    "OpenSSL defaults refer to temporary isolated installation prefix; no redistribution or relocation established",
+    "four patches applied; historic executable equivalence and licensing completeness not established",
+    "only ten top-level logs summarized; nested core build logs not summarized"
+  ]
+}

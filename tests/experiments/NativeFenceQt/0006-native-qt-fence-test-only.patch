@@ -1,0 +1,100 @@
+--- a/src/lib/deskflow/control/DeskToolboxControl.h
++++ b/src/lib/deskflow/control/DeskToolboxControl.h
+@@ -33,6 +33,9 @@
+   void processFrame(QLocalSocket *socket, const QByteArray &frame);
+   void write(QLocalSocket *socket, const QJsonObject &object);
+   void reject(QLocalSocket *socket, const QString &requestId, const QString &reason);
++#ifdef NIAN_NATIVE_FENCE_TEST
++  void rejectFenceFixture(QLocalSocket *socket, const QString &requestId, const QString &reason);
++#endif
+   UserLocalServer m_server;
+   QHash<QLocalSocket *, Client> m_clients;
+   Submit m_submit;
+--- a/src/lib/deskflow/control/DeskToolboxControl.cpp
++++ b/src/lib/deskflow/control/DeskToolboxControl.cpp
+@@ -25,7 +25,11 @@
+ 
+ QString DeskToolboxControl::endpoint() const
+ {
++#ifdef NIAN_NATIVE_FENCE_TEST
++  return QStringLiteral("nian-fence-harness-%1").arg(QCoreApplication::applicationPid());
++#else
+   return QStringLiteral("nian-deskflow-control-%1").arg(QCoreApplication::applicationPid());
++#endif
+ }
+ 
+ bool DeskToolboxControl::listen()
+@@ -95,6 +99,13 @@
+                  {"revision", 0}, {"error", reason}});
+ }
+ 
++#ifdef NIAN_NATIVE_FENCE_TEST
++void DeskToolboxControl::rejectFenceFixture(QLocalSocket *socket, const QString &id, const QString &reason)
++{
++  write(socket, {{"version", 2}, {"requestId", id}, {"ok", false}, {"error", reason}});
++}
++#endif
++
+ void DeskToolboxControl::processFrame(QLocalSocket *socket, const QByteArray &frame)
+ {
+   QJsonParseError error;
+@@ -102,11 +113,57 @@
+   if (error.error != QJsonParseError::NoError || !doc.isObject()) {
+     reject(socket, {}, "invalid_json"); return;
+   }
+-  const auto request = doc.object();
++  auto request = doc.object();
+   const auto id = request.value("requestId").toString();
+   static const QRegularExpression idPattern(QStringLiteral("\\A[0-9a-fA-F]{32}\\z"));
+   if (!idPattern.match(id).hasMatch()) { reject(socket, {}, "invalid_request_id"); return; }
+-  if (!request.value("version").isDouble() || request.value("version").toDouble() != 1) {
++  const auto version = request.value("version");
++#ifdef NIAN_NATIVE_FENCE_TEST
++  if (version.isDouble() && version.toDouble() == 2) {
++    const auto action = request.value("action").toString();
++    if (action != "fence-begin" && action != "fence-seal" && action != "fixture-exit") {
++      rejectFenceFixture(socket, id, "invalid_action"); return;
++    }
++    for (const auto &key : request.keys()) {
++      const auto core = key == "version" || key == "requestId" || key == "action";
++      const auto fenceField = action != "fixture-exit" && (key == "operationId" || key == "incarnation" || key == "target");
++      if (!core && !fenceField) { rejectFenceFixture(socket, id, "unknown_field"); return; }
++    }
++    if (action != "fixture-exit") {
++      const auto operation = request.value("operationId");
++      const auto incarnation = request.value("incarnation");
++      const auto target = request.value("target");
++      static const QRegularExpression namePattern(QStringLiteral("\\A[A-Za-z0-9_.-]{1,64}\\z"));
++      const auto zero = QString(32, QLatin1Char('0'));
++      if (!operation.isString() || !idPattern.match(operation.toString()).hasMatch() || operation.toString() == zero ||
++          !incarnation.isString() || !idPattern.match(incarnation.toString()).hasMatch() || incarnation.toString() == zero ||
++          !target.isString() || !namePattern.match(target.toString()).hasMatch()) {
++        rejectFenceFixture(socket, id, "invalid_fence_fields"); return;
++      }
++      request.insert("operationId", operation.toString().toLower());
++      request.insert("incarnation", incarnation.toString().toLower());
++    }
++    auto &client = m_clients[socket];
++    if (client.pending.contains(id)) { rejectFenceFixture(socket, id, "duplicate_request_id"); return; }
++    if (client.pending.size() >= 8) { rejectFenceFixture(socket, id, "too_many_requests"); return; }
++    client.pending.insert(id);
++    const QPointer<QLocalSocket> guard(socket);
++    m_submit(request, [this, guard, id](QJsonObject response) {
++      QMetaObject::invokeMethod(this, [this, guard, id, response = std::move(response)]() mutable {
++        if (!guard || !m_clients.contains(guard)) return;
++        m_clients[guard].pending.remove(id);
++        response.insert("version", 2);
++        response.insert("requestId", id);
++        write(guard, response);
++      }, Qt::QueuedConnection);
++    });
++    return;
++  }
++  if (version.isDouble() && version.toDouble() == 1 && request.value("action").toString() != "state") {
++    reject(socket, id, "research_v1_disabled"); return;
++  }
++#endif
++  if (!version.isDouble() || version.toDouble() != 1) {
+     reject(socket, id, "unsupported_version"); return;
+   }
+   const auto action = request.value("action").toString();

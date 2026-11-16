@@ -1,0 +1,62 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- A wide transparent hit area keeps the narrow indicator easy to drag. -->
+    <Style x:Key="ScrollPageButton" TargetType="RepeatButton">
+        <Setter Property="Focusable" Value="False"/>
+        <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="RepeatButton"><Border Background="Transparent"/></ControlTemplate></Setter.Value></Setter>
+    </Style>
+    <Style x:Key="VerticalScrollThumb" TargetType="Thumb">
+        <Setter Property="MinHeight" Value="26"/>
+        <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Thumb">
+            <Grid Background="Transparent"><Border x:Name="Indicator" Width="5" Margin="0,2" CornerRadius="3" Background="#A8BCD4" HorizontalAlignment="Center"/></Grid>
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Indicator" Property="Width" Value="7"/><Setter TargetName="Indicator" Property="Background" Value="#7494BE"/></Trigger>
+                <Trigger Property="IsDragging" Value="True"><Setter TargetName="Indicator" Property="Width" Value="7"/><Setter TargetName="Indicator" Property="Background" Value="#5480BA"/></Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate></Setter.Value></Setter>
+    </Style>
+    <Style x:Key="HorizontalScrollThumb" TargetType="Thumb">
+        <Setter Property="MinWidth" Value="26"/>
+        <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Thumb">
+            <Grid Background="Transparent"><Border x:Name="Indicator" Height="5" Margin="2,0" CornerRadius="3" Background="#A8BCD4" VerticalAlignment="Center"/></Grid>
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Indicator" Property="Height" Value="7"/><Setter TargetName="Indicator" Property="Background" Value="#7494BE"/></Trigger>
+                <Trigger Property="IsDragging" Value="True"><Setter TargetName="Indicator" Property="Height" Value="7"/><Setter TargetName="Indicator" Property="Background" Value="#5480BA"/></Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate></Setter.Value></Setter>
+    </Style>
+    <ControlTemplate x:Key="VerticalSettingsScrollBar" TargetType="ScrollBar">
+        <Grid Background="Transparent">
+            <Track x:Name="PART_Track" Orientation="Vertical" IsDirectionReversed="True" Focusable="False"
+                   Minimum="{TemplateBinding Minimum}" Maximum="{TemplateBinding Maximum}" ViewportSize="{TemplateBinding ViewportSize}"
+                   Value="{Binding Value, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}">
+                <Track.DecreaseRepeatButton><RepeatButton Command="ScrollBar.PageUpCommand" Style="{StaticResource ScrollPageButton}"/></Track.DecreaseRepeatButton>
+                <Track.Thumb><Thumb Style="{StaticResource VerticalScrollThumb}"/></Track.Thumb>
+                <Track.IncreaseRepeatButton><RepeatButton Command="ScrollBar.PageDownCommand" Style="{StaticResource ScrollPageButton}"/></Track.IncreaseRepeatButton>
+            </Track>
+        </Grid>
+    </ControlTemplate>
+    <ControlTemplate x:Key="HorizontalSettingsScrollBar" TargetType="ScrollBar">
+        <Grid Background="Transparent">
+            <Track x:Name="PART_Track" Orientation="Horizontal" Focusable="False"
+                   Minimum="{TemplateBinding Minimum}" Maximum="{TemplateBinding Maximum}" ViewportSize="{TemplateBinding ViewportSize}"
+                   Value="{Binding Value, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}">
+                <Track.DecreaseRepeatButton><RepeatButton Command="ScrollBar.PageLeftCommand" Style="{StaticResource ScrollPageButton}"/></Track.DecreaseRepeatButton>
+                <Track.Thumb><Thumb Style="{StaticResource HorizontalScrollThumb}"/></Track.Thumb>
+                <Track.IncreaseRepeatButton><RepeatButton Command="ScrollBar.PageRightCommand" Style="{StaticResource ScrollPageButton}"/></Track.IncreaseRepeatButton>
+            </Track>
+        </Grid>
+    </ControlTemplate>
+    <Style TargetType="ScrollBar">
+        <Setter Property="Tag" Value="settings-scrollbar"/>
+        <Setter Property="Width" Value="14"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Template" Value="{StaticResource VerticalSettingsScrollBar}"/>
+        <Style.Triggers>
+            <Trigger Property="Orientation" Value="Horizontal">
+                <Setter Property="Width" Value="Auto"/><Setter Property="Height" Value="14"/>
+                <Setter Property="Template" Value="{StaticResource HorizontalSettingsScrollBar}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+</ResourceDictionary>

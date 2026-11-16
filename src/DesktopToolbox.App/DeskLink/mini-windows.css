@@ -1,0 +1,8 @@
+/* A 12px native transparent gutter must contain the entire Windows shadow. */
+html body #nian-link-mini .nl-window {
+    box-shadow: 0 2px 4px var(--nl-shadow), inset 0 1px 0 light-dark(#ffffffdc, #ffffff20);
+}
+html body #nian-link-mini .nl-capsule {
+    box-shadow: 0 2px 4px var(--nl-shadow), inset 0 1px 0 light-dark(#fff, #ffffff28);
+}
+

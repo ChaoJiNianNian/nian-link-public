@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><TargetFramework>net10.0</TargetFramework></PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Nian.Input.Control/Nian.Input.Control.csproj"/>
+    <ProjectReference Include="../Nian.Input.Security/Nian.Input.Security.csproj"/>
+  </ItemGroup>
+</Project>

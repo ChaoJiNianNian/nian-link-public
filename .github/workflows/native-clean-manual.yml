@@ -1,0 +1,56 @@
+name: Native clean source build (manual review)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  native-core:
+    runs-on: windows-2022
+    timeout-minutes: 180
+    env:
+      DOTNET_GENERATE_ASPNET_CERTIFICATE: '0'
+      DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+    steps:
+      - name: Checkout without persisting credentials
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+      - name: Verify native build boundary
+        shell: cmd
+        run: |
+          python -B -m unittest discover -s tests -p test_github_native_clean_build.py
+          if errorlevel 1 exit /b 1
+          python -B -m unittest discover -s tests -p test_native_core_build.py
+          if errorlevel 1 exit /b 1
+          python -B -m unittest discover -s tests -p test_qt_config_summary.py
+          if errorlevel 1 exit /b 1
+      - name: Build fixed sources in isolated directories
+        shell: cmd
+        run: |
+          echo [native-ci] Checking runner temp and VS discovery prerequisites.
+          if not defined RUNNER_TEMP (echo [native-ci] ERROR: RUNNER_TEMP missing. & exit /b 1)
+          if not defined GITHUB_RUN_ID (echo [native-ci] ERROR: GITHUB_RUN_ID missing. & exit /b 1)
+          if not defined GITHUB_RUN_ATTEMPT (echo [native-ci] ERROR: GITHUB_RUN_ATTEMPT missing. & exit /b 1)
+          set "NIAN_VS_PATH_FILE=%RUNNER_TEMP%\nian-vs-path-%GITHUB_RUN_ID%-%GITHUB_RUN_ATTEMPT%.txt"
+          if exist "%NIAN_VS_PATH_FILE%" (echo [native-ci] ERROR: VS discovery file already exists. & exit /b 1)
+          if not exist "%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" (echo [native-ci] ERROR: vswhere executable missing. & exit /b 1)
+          echo [native-ci] Discovering Visual Studio 2022 x64 tools.
+          "%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -version "[17.0,18.0)" -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath > "%NIAN_VS_PATH_FILE%"
+          if errorlevel 1 (echo [native-ci] ERROR: vswhere returned a nonzero exit code. & exit /b 1)
+          set "NIAN_VS_ROOT="
+          set /p "NIAN_VS_ROOT="<"%NIAN_VS_PATH_FILE%"
+          if not defined NIAN_VS_ROOT (echo [native-ci] ERROR: no matching Visual Studio 2022 with x64 tools. & exit /b 1)
+          if not exist "%NIAN_VS_ROOT%\Common7\Tools\VsDevCmd.bat" (echo [native-ci] ERROR: VsDevCmd.bat missing. & exit /b 1)
+          echo [native-ci] Initializing Visual Studio x64 developer environment.
+          call "%NIAN_VS_ROOT%\Common7\Tools\VsDevCmd.bat" -arch=x64 -host_arch=x64
+          if errorlevel 1 (echo [native-ci] ERROR: VsDevCmd initialization failed. & exit /b 1)
+          echo [native-ci] Developer environment initialized; starting isolated native build.
+          python -B scripts/github_native_clean_build.py
+          if errorlevel 1 exit /b 1
+          python -B scripts/print_native_clean_evidence.py
+          if errorlevel 1 exit /b 1
+          python -B scripts/qt_config_summary.py
+          if errorlevel 1 exit /b 1

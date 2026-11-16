@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="PairingReviewLifecycleTests.cs" />
+    <Compile Remove="FenceServerSkeletonTests.cs" Condition="'$(NianFenceResearchIsolatedTest)' != 'true'" />
+    <Compile Remove="EmergencyTicketResearchTests.cs" Condition="'$(NianFenceResearchIsolatedTest)' != 'true'" />
+    <Compile Remove="FenceResearchDefaultBuildTests.cs" Condition="'$(NianFenceResearchIsolatedTest)' == 'true'" />
+    <ProjectReference Include="../../src/DesktopToolbox.DeskLink/DesktopToolbox.DeskLink.csproj" />
+    <Compile Include="../../src/NianLink.Windows/WindowsCredentialProtector.cs" Link="WindowsCredentialProtector.cs" />
+    <Compile Include="../../src/DesktopToolbox.Mac/Services/MacMultiPeerProtector.cs" Link="MacMultiPeerProtector.cs" />
+    <Compile Include="../../src/DesktopToolbox.Mac/Services/MacMultiPeerClient.cs" Link="MacMultiPeerClient.cs" />
+    <Compile Include="../../src/DesktopToolbox.App/DeskLink/MiniDeviceLabels.cs" Link="MiniDeviceLabels.cs" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.1"><PrivateAssets>all</PrivateAssets></PackageReference>
+    <Using Include="Xunit" />
+  </ItemGroup>
+</Project>

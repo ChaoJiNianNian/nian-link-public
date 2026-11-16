@@ -1,0 +1,172 @@
+using DesktopToolbox.DeskLink.Collaboration.LivePreview;
+using DesktopToolbox.DeskLink.Collaboration;
+using DesktopToolbox.DeskLink;
+using DesktopToolbox.DeskLink.Preview;
+using DesktopToolbox.Mac.Services;
+using System.Reflection;
+
+namespace DesktopToolbox.Mac.Tests;
+
+public sealed partial class MacCollaborationIntegrationTests
+{
+    [Fact]
+    public async Task RealTlsSubscriptionStopsReceiverBeforeLeaseDrainCompletes()
+    {
+        await using var harness = await BoundaryHarness.OpenAsync();
+        var lease = Assert.IsType<MacMultiPeerClient.CollaborationLease>(await harness.Owner.GetCollaborationLeaseAsync());
+        var hostField = typeof(BoundaryHarness).GetField("runtime", BindingFlags.NonPublic | BindingFlags.Instance);
+        Assert.NotNull(hostField);
+        var host = Assert.IsType<MultiPeerRuntime>(hostField.GetValue(harness));
+        var capture = new ControlledLiveSource();
+        await host.SetPreviewSourceAsync(harness.Owner.DeviceName, new PreviewSourceStatus(Guid.NewGuid(), 1, "enabled"), CancellationToken.None, capture);
+        await using var data = new CollaborationClient(lease.Pairing, true, lease.Pairing.DataPort);
+        await data.GetStatusAsync(supportsLivePreview: true, supportsPassivePreviewGeneration: true);
+        var actual = new RemoteSubscriptionControlLivePreviewSource(() => data, () => true);
+        var observed = new ObservedLiveSource(actual);
+        await using var source = CreateGuardedSource(lease, observed);
+        var id = Guid.NewGuid();
+        await source.StartAsync(id);
+        using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+        while (Volatile.Read(ref capture.Starts) == 0) await Task.Delay(20, timeout.Token);
+        var drain = lease.Suspend();
+        await drain.WaitAsync(timeout.Token);
+        Assert.True(observed.StopFinished.Task.IsCompletedSuccessfully);
+        while (Volatile.Read(ref capture.Stops) == 0) await Task.Delay(20, timeout.Token);
+    }
+
+    [Fact]
+    public async Task RevocationWaitsForStartAndSingleFlightStopToActuallyComplete()
+    {
+        await using var harness = await BoundaryHarness.OpenAsync();
+        var lease = Assert.IsType<MacMultiPeerClient.CollaborationLease>(await harness.Owner.GetCollaborationLeaseAsync());
+        var backend = new BlockingLiveSource();
+        await using var source = CreateGuardedSource(lease, backend);
+        var id = Guid.NewGuid();
+        var start = source.StartAsync(id);
+        await backend.Started.Task.WaitAsync(TimeSpan.FromSeconds(10));
+        var drain = lease.Suspend();
+        try
+        {
+            Assert.True(backend.StartToken.IsCancellationRequested);
+            Assert.False(drain.IsCompleted);
+            backend.StartResult.TrySetResult();
+            await backend.Stopping.Task.WaitAsync(TimeSpan.FromSeconds(10));
+            var stop = source.StopAsync(id);
+            Assert.False(drain.IsCompleted);
+            Assert.Equal(1, backend.StopCount);
+            backend.StopResult.TrySetResult();
+            await stop.WaitAsync(TimeSpan.FromSeconds(10));
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(() => start);
+            await drain.WaitAsync(TimeSpan.FromSeconds(10));
+        }
+        finally { backend.StartResult.TrySetResult(); backend.StopResult.TrySetResult(); try { await start; } catch { } }
+    }
+
+    [Fact]
+    public async Task FailedStopKeepsLeaseUntilLaterStopActuallyCompletes()
+    {
+        await using var harness = await BoundaryHarness.OpenAsync();
+        var lease = Assert.IsType<MacMultiPeerClient.CollaborationLease>(await harness.Owner.GetCollaborationLeaseAsync());
+        var backend = new BlockingLiveSource();
+        await using var source = CreateGuardedSource(lease, backend);
+        var id = Guid.NewGuid();
+        var start = source.StartAsync(id);
+        backend.StartResult.SetResult();
+        await start;
+        var firstStop = source.StopAsync(id);
+        backend.StopResult.SetException(new IOException("synthetic receiver stop failure"));
+        await Assert.ThrowsAsync<IOException>(() => firstStop);
+        backend.RetryStopResult = Task.CompletedTask;
+        var drain = lease.Suspend();
+        await drain.WaitAsync(TimeSpan.FromSeconds(10));
+        Assert.Equal(2, backend.StopCount);
+    }
+
+    [Fact]
+    public async Task DisposingSourceRejectsNewStartsWhileInnerDisposeIsBlocked()
+    {
+        await using var harness = await BoundaryHarness.OpenAsync();
+        var lease = Assert.IsType<MacMultiPeerClient.CollaborationLease>(await harness.Owner.GetCollaborationLeaseAsync());
+        var backend = new BlockingLiveSource { BlockDispose = true };
+        var source = CreateGuardedSource(lease, backend);
+        var disposing = source.DisposeAsync().AsTask();
+        try
+        {
+            await backend.DisposeStarted.Task.WaitAsync(TimeSpan.FromSeconds(10));
+            Assert.False(disposing.IsCompleted);
+            await Assert.ThrowsAsync<InvalidOperationException>(() => source.StartAsync(Guid.NewGuid()));
+            Assert.False(backend.Started.Task.IsCompleted);
+        }
+        finally { backend.DisposeResult.TrySetResult(); await disposing.WaitAsync(TimeSpan.FromSeconds(10)); }
+        Assert.False(source.IsSupported);
+    }
+
+    [Fact]
+    public async Task StreamClosedSchedulesStopWithoutWaitingInsideCallback()
+    {
+        await using var harness = await BoundaryHarness.OpenAsync();
+        var lease = Assert.IsType<MacMultiPeerClient.CollaborationLease>(await harness.Owner.GetCollaborationLeaseAsync());
+        var backend = new BlockingLiveSource();
+        await using var source = CreateGuardedSource(lease, backend);
+        var id = Guid.NewGuid();
+        var start = source.StartAsync(id);
+        backend.StartResult.SetResult();
+        await start.WaitAsync(TimeSpan.FromSeconds(10));
+        backend.Close(id);
+        await backend.Stopping.Task.WaitAsync(TimeSpan.FromSeconds(10));
+        var drain = lease.Suspend();
+        try
+        {
+            Assert.False(drain.IsCompleted);
+            Assert.Equal(1, backend.StopCount);
+            backend.StopResult.SetResult();
+            await drain.WaitAsync(TimeSpan.FromSeconds(10));
+        }
+        finally { backend.StopResult.TrySetResult(); }
+    }
+
+    private static IControlLivePreviewSource CreateGuardedSource(MacMultiPeerClient.CollaborationLease lease, IControlLivePreviewSource backend)
+    {
+        var type = typeof(MacMultiPeerClient).Assembly.GetType("DesktopToolbox.Mac.Services.MacMultiLivePreviewSource");
+        Assert.NotNull(type);
+        return Assert.IsAssignableFrom<IControlLivePreviewSource>(Activator.CreateInstance(type, lease, backend));
+    }
+
+    private sealed class BlockingLiveSource : IControlLivePreviewSource
+    {
+        public bool IsSupported => true;
+        public string UnavailableHint => "test";
+        public event Action<Guid, LivePreviewCapturePacket>? PacketReceived;
+        public event Action<Guid, string>? StreamClosed;
+        public TaskCompletionSource Started { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        public TaskCompletionSource StartResult { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        public TaskCompletionSource Stopping { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        public TaskCompletionSource StopResult { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        public Task? RetryStopResult { get; set; }
+        public bool BlockDispose { get; init; }
+        public TaskCompletionSource DisposeStarted { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        public TaskCompletionSource DisposeResult { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        public CancellationToken StartToken { get; private set; }
+        public int StopCount;
+        public Task StartAsync(Guid id, CancellationToken token = default)
+        { StartToken = token; Started.TrySetResult(); return StartResult.Task; }
+        public Task StopAsync(Guid id, CancellationToken token = default)
+        { Interlocked.Increment(ref StopCount); Stopping.TrySetResult(); return RetryStopResult ?? StopResult.Task; }
+        public void Close(Guid id) => StreamClosed?.Invoke(id, "closed");
+        public void Send(Guid id, LivePreviewCapturePacket packet) => PacketReceived?.Invoke(id, packet);
+        public async ValueTask DisposeAsync() { DisposeStarted.TrySetResult(); if (BlockDispose) await DisposeResult.Task; }
+    }
+
+    private sealed class ObservedLiveSource(IControlLivePreviewSource actual) : IControlLivePreviewSource
+    {
+        public TaskCompletionSource StopFinished { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        public bool IsSupported => actual.IsSupported;
+        public string UnavailableHint => actual.UnavailableHint;
+        public event Action<Guid, LivePreviewCapturePacket>? PacketReceived { add => actual.PacketReceived += value; remove => actual.PacketReceived -= value; }
+        public event Action<Guid, string>? StreamClosed { add => actual.StreamClosed += value; remove => actual.StreamClosed -= value; }
+        public Task StartAsync(Guid id, CancellationToken token = default) => actual.StartAsync(id, token);
+        public async Task StopAsync(Guid id, CancellationToken token = default)
+        { await actual.StopAsync(id, token); StopFinished.TrySetResult(); }
+        public ValueTask DisposeAsync() => actual.DisposeAsync();
+    }
+}

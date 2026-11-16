@@ -1,0 +1,70 @@
+{
+  "scope": "Windows and macOS .NET 10.0.15 runtime notices from separate verified NuGet archives; not complete distribution approval",
+  "packages_verified": "dotnet nuget verify exit 0 on local host, using host trust configuration",
+  "records": [
+    {
+      "package": "microsoft.netcore.app.runtime.win-x64",
+      "version": "10.0.15",
+      "upstream_member": "LICENSE.TXT",
+      "path": "vendor/notices/dotnet-runtime-10.0.15/microsoft.netcore.app.runtime.win-x64/LICENSE.TXT",
+      "sha256": "d7a68596ab69b06f51ca278a6545148e4269a9381c26d597c13df5d88e08cf5b",
+      "package_sha256": "7423f58917342b9e4bf276fb164d5726d2c90fe2fe989c552b9e39056256a035"
+    },
+    {
+      "package": "microsoft.netcore.app.runtime.win-x64",
+      "version": "10.0.15",
+      "upstream_member": "THIRD-PARTY-NOTICES.TXT",
+      "path": "vendor/notices/dotnet-runtime-10.0.15/microsoft.netcore.app.runtime.win-x64/THIRD-PARTY-NOTICES.TXT",
+      "sha256": "6d15e10a101c6bfff2ab4429ed061bf76c456fc4b23ad6b03e0d0f8377148a21",
+      "package_sha256": "7423f58917342b9e4bf276fb164d5726d2c90fe2fe989c552b9e39056256a035"
+    },
+    {
+      "package": "microsoft.netcore.app.runtime.win-x64",
+      "version": "10.0.15",
+      "upstream_member": "Microsoft.NETCore.App.Runtime.win-x64.nuspec",
+      "path": "vendor/notices/dotnet-runtime-10.0.15/microsoft.netcore.app.runtime.win-x64/package.nuspec.txt",
+      "sha256": "66fc5ca8fec9ec9c86df72d89c8ffba23471817539c5f95599fad05785488b2c",
+      "package_sha256": "7423f58917342b9e4bf276fb164d5726d2c90fe2fe989c552b9e39056256a035"
+    },
+    {
+      "package": "microsoft.windowsdesktop.app.runtime.win-x64",
+      "version": "10.0.15",
+      "upstream_member": "LICENSE",
+      "path": "vendor/notices/dotnet-runtime-10.0.15/microsoft.windowsdesktop.app.runtime.win-x64/LICENSE.txt",
+      "sha256": "a89886665765362eb77e0f8e26602c924520041d1711b2eedc136434fe4d01ab",
+      "package_sha256": "a036c174bac57a716e21dedccf96459804e4d8d8c31a08e3a8de649bf7684497"
+    },
+    {
+      "package": "microsoft.windowsdesktop.app.runtime.win-x64",
+      "version": "10.0.15",
+      "upstream_member": "Microsoft.WindowsDesktop.App.Runtime.win-x64.nuspec",
+      "path": "vendor/notices/dotnet-runtime-10.0.15/microsoft.windowsdesktop.app.runtime.win-x64/package.nuspec.txt",
+      "sha256": "fccb75d5748a1121c48fab4ea0f9fb1be001a16ae9f13796adc52a1496fe28f2",
+      "package_sha256": "a036c174bac57a716e21dedccf96459804e4d8d8c31a08e3a8de649bf7684497"
+    },
+    {
+      "package": "microsoft.netcore.app.runtime.osx-arm64",
+      "version": "10.0.15",
+      "upstream_member": "LICENSE.TXT",
+      "path": "vendor/notices/dotnet-runtime-10.0.15/microsoft.netcore.app.runtime.osx-arm64/LICENSE.TXT",
+      "sha256": "cfc21f5e8bd655ae997eec916138b707b1d290b83272c02a95c9f821b8c87310",
+      "package_sha256": "e464e8ed38124c1c55c3b60a1c5e6820153e23664406171225fba2f600a46cee"
+    },
+    {
+      "package": "microsoft.netcore.app.runtime.osx-arm64",
+      "version": "10.0.15",
+      "upstream_member": "THIRD-PARTY-NOTICES.TXT",
+      "path": "vendor/notices/dotnet-runtime-10.0.15/microsoft.netcore.app.runtime.osx-arm64/THIRD-PARTY-NOTICES.TXT",
+      "sha256": "66f1d4e44973185519bb4aa8a9718eb22fc7af2cc532e3ae9cfc4c127ee7fc54",
+      "package_sha256": "e464e8ed38124c1c55c3b60a1c5e6820153e23664406171225fba2f600a46cee"
+    },
+    {
+      "package": "microsoft.netcore.app.runtime.osx-arm64",
+      "version": "10.0.15",
+      "upstream_member": "Microsoft.NETCore.App.Runtime.osx-arm64.nuspec",
+      "path": "vendor/notices/dotnet-runtime-10.0.15/microsoft.netcore.app.runtime.osx-arm64/package.nuspec.txt",
+      "sha256": "e21ee061f36e8fb0c9668906668d1b4c95fa906b627973af839eec0851586712",
+      "package_sha256": "e464e8ed38124c1c55c3b60a1c5e6820153e23664406171225fba2f600a46cee"
+    }
+  ]
+}

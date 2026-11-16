@@ -1,0 +1,56 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'none'; object-src 'none'; frame-src 'none'; base-uri 'none'; form-action 'none'"><title>年年互联</title><link rel="stylesheet" href="mini.css"><script src="assets/lucide.min.js" defer></script><script src="mini.js" defer></script></head><body><main id="nian-link-mini"><article class="nl-window" aria-label="年年互联小窗">
+      <header class="nl-head">
+        <div class="nl-drag" aria-label="拖动小窗">
+          <span class="nl-brand"><i data-lucide="panels-top-left" aria-hidden="true"></i></span>
+          <div><div class="nl-name">年年互联</div><div class="nl-sub"><span class="nl-dot"></span><span data-connected>正在确认键鼠状态</span><button type="button" class="nl-inline-start cursor-interaction" data-start-sharing hidden disabled>启动共享</button></div></div>
+        </div>
+        <button type="button" class="nl-iconbutton cursor-interaction" data-pin aria-label="固定小窗" aria-pressed="false" data-tooltip="固定小窗"><i data-lucide="pin" aria-hidden="true"></i></button>
+        <button type="button" class="nl-iconbutton cursor-interaction" data-collapse aria-label="收起到边缘" data-tooltip="收起到边缘"><i data-lucide="panel-right-close" aria-hidden="true"></i></button>
+      </header>
+      <div class="nl-device-choice" data-device-chooser hidden><label for="nl-device-picker">当前设备</label><select id="nl-device-picker" class="cursor-interaction" data-device-picker aria-label="选择互联设备"></select></div>
+      <div class="nl-livebar">
+        <div class="nl-live-title"><i data-lucide="monitor-play" aria-hidden="true"></i><span data-live-title>Mac 实时画面</span></div>
+        <label class="nl-toggle-label cursor-interaction"><span data-live-state>已关闭</span><input class="nl-toggle cursor-interaction" type="checkbox" role="switch" data-preview-toggle aria-label="实时画面"></label>
+      </div>
+      <div class="nl-preview-wrap" data-preview-wrap hidden>
+        <div class="nl-sourcebar"><span class="nl-source-label" data-source aria-label="预览范围：默认画面"><span>默认画面</span></span><span data-frame-state>等待画面</span></div>
+        <button type="button" class="nl-preview cursor-interaction" data-enlarge aria-label="放大预览画面">
+          <div class="nl-screen" data-screen data-remote="Mac" data-source="desktop" role="img" aria-label="对方桌面实时画面"><img class="nl-screen-img" data-frame-image alt="" hidden><div class="nl-screen-status" data-frame-status>等待对方画面</div><span class="nl-framebadge" data-framebadge>Mac · 桌面</span><span class="nl-expandmark"><i data-lucide="expand" aria-hidden="true"></i></span></div>
+        </button>
+      </div>
+      <div class="nl-switches" aria-label="切换控制电脑">
+        <button type="button" class="nl-switchbutton cursor-interaction" data-switch="Windows" aria-pressed="false"><i data-lucide="monitor" aria-hidden="true"></i><span data-win-label>切到 Windows</span></button>
+        <button type="button" class="nl-switchbutton cursor-interaction" data-switch="Mac" aria-pressed="false"><i data-lucide="laptop" aria-hidden="true"></i><span data-mac-label>切到 Mac</span></button>
+      </div>
+      <div class="nl-receive-alert" data-receive-needed role="status" hidden><span data-receive-needed-text>有文件等待接收，请先选择 Mac 收件文件夹。</span><button type="button" class="nl-secondary cursor-interaction" data-choose-receive>选择收件文件夹</button></div>
+      <nav class="nl-tools" aria-label="跨机工具">
+        <button type="button" class="nl-tool cursor-interaction" data-panel="transfer" aria-expanded="false" aria-controls="nl-detail-transfer"><i data-lucide="send" aria-hidden="true"></i><span>文件传输</span></button>
+        <button type="button" class="nl-tool cursor-interaction" data-panel="shared" aria-expanded="false" aria-controls="nl-detail-shared"><i data-lucide="folder-open" aria-hidden="true"></i><span>共享文件夹</span></button>
+        <button type="button" class="nl-tool cursor-interaction" data-panel="clipboard" aria-expanded="false" aria-controls="nl-detail-clipboard"><i data-lucide="clipboard" aria-hidden="true"></i><span class="nl-tool-caption"><span data-clip-caption>剪贴板 · 关</span><span class="nl-dot" data-clip-dot hidden></span></span></button>
+      </nav>
+      <section class="nl-details" id="nl-detail-transfer" data-detail="transfer" hidden>
+        <div class="nl-detailhead"><span data-transfer-title>发送到 Mac</span><button type="button" class="nl-iconbutton cursor-interaction" data-close-panel aria-label="收起文件传输"><i data-lucide="x" aria-hidden="true"></i></button></div>
+        <div class="nl-dropzone"><i data-lucide="cloud-upload" aria-hidden="true"></i><span>拖文件或文件夹到小窗</span><span class="nl-notice">对方收一份，原文件保留</span><div class="nl-selection-row"><button type="button" class="nl-secondary cursor-interaction" data-choose-files>选择文件</button><button type="button" class="nl-secondary cursor-interaction" data-choose-folder>选择文件夹</button></div></div>
+        
+        <div class="nl-location" style="margin-top:10px"><i data-lucide="download" aria-hidden="true"></i><span data-receive-path>本机收件目录未设置</span></div><button type="button" class="nl-miniaction cursor-interaction" data-choose-receive-inline hidden>选择本机收件文件夹</button><div data-transfers></div>
+      <button type="button" class="nl-miniaction" data-open-inbox>打开本机收件</button></section>
+      <section class="nl-details" id="nl-detail-shared" data-detail="shared" hidden>
+        <div class="nl-detailhead"><span>共享文件夹</span><button type="button" class="nl-iconbutton cursor-interaction" data-close-panel aria-label="收起共享文件夹"><i data-lucide="x" aria-hidden="true"></i></button></div>
+        <div class="nl-location"><i data-lucide="folder" aria-hidden="true"></i><span data-share-path data-shared-location>尚未选择共享目录</span></div>
+        <p class="nl-notice" style="margin-top:8px;margin-bottom:0" data-shared-notice>读取共享资料中…</p>
+        
+        
+        
+      <div data-shared-list></div><div class="nl-preview-file" data-file-preview hidden></div></section>
+      <section class="nl-details" id="nl-detail-clipboard" data-detail="clipboard" hidden>
+        <div class="nl-detailhead"><span>双向剪贴板</span><button type="button" class="nl-iconbutton cursor-interaction" data-close-panel aria-label="收起剪贴板"><i data-lucide="x" aria-hidden="true"></i></button></div>
+        <div class="nl-clipboard-line"><span>文字和链接互通</span><input type="checkbox" role="switch" class="nl-toggle cursor-interaction" data-clipboard-toggle aria-label="剪贴板互通"></div>
+        <div class="nl-notice" data-clipboard-status>剪贴板互通已暂停。</div>
+        <p class="nl-notice" data-clipboard-privacy>开启后，新复制的文字和链接可能发送到另一台电脑；单次最多 256 KB，超出请分段复制。</p>
+        
+      </section>
+      <section class="nl-details" id="nl-detail-settings" data-detail="settings" hidden><div class="nl-detailhead"><span>小窗设置</span><button type="button" class="nl-iconbutton cursor-interaction" data-close-panel aria-label="收起设置"><i data-lucide="x" aria-hidden="true"></i></button></div><div data-settings-body></div></section>
+      <div class="nl-toast" role="status" aria-live="polite" data-toast hidden></div>
+      <footer class="nl-footer"><span><i data-lucide="move-up-right" aria-hidden="true"></i><span data-drop-hint>拖文件到小窗即可发送</span></span><button type="button" class="nl-footerbutton cursor-interaction" data-panel="settings" aria-expanded="false" aria-controls="nl-detail-settings"><i data-lucide="settings-2" aria-hidden="true"></i>设置</button></footer>
+      <div class="nl-dragoverlay" data-drag-overlay hidden><i data-lucide="send" aria-hidden="true"></i><strong data-drag-label>松开发送到 Mac</strong><small>对方收一份，原文件保留</small></div>
+    </article><button type="button" class="nl-capsule cursor-interaction" data-expand aria-label="展开年年互联小窗" hidden><i data-lucide="panels-top-left" aria-hidden="true"></i><span>互联</span><span class="nl-dot"></span><small>展开</small></button></main></body></html>

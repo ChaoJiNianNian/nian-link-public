@@ -1,0 +1,53 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType><TargetFramework>net10.0</TargetFramework><UseAppHost>true</UseAppHost>
+    <AssemblyName>NianDeskLink</AssemblyName><RootNamespace>DesktopToolbox.Mac</RootNamespace><Version>0.8.4</Version>
+    <AvaloniaUseCompiledBindingsByDefault>false</AvaloniaUseCompiledBindingsByDefault>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+  </PropertyGroup>
+  <Target Name="RejectFilelessIsolatedTestOnFormalBuild" BeforeTargets="PrepareForBuild" Condition="'$(NianFilelessPairingIsolatedTest)' == 'true'">
+    <Error Text="The isolated fileless test gate cannot be enabled for the formal Mac project." />
+  </Target>
+  <PropertyGroup Condition="'$(NativeInputCandidate)'=='true'">
+    <NativeInputEngine>true</NativeInputEngine>
+    <Version>0.9.0</Version>
+    <DefineConstants>$(DefineConstants);NATIVE_INPUT_CANDIDATE</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(NativeInputEngine)'=='true'">
+    <DefineConstants>$(DefineConstants);NATIVE_INPUT_ENGINE</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(PreviewControlCandidate)'=='true'">
+    <PreviewControlEngine>true</PreviewControlEngine>
+    <Version>0.8.8</Version>
+    <DefineConstants>$(DefineConstants);PREVIEW_CONTROL_CANDIDATE</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(PreviewControlEngine)'=='true'">
+    <DefineConstants>$(DefineConstants);PREVIEW_CONTROL_ENGINE</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(MultiDeviceCandidate)'=='true'">
+    <DefineConstants>$(DefineConstants);MULTI_DEVICE_CANDIDATE</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(MultiDeviceCandidate)'=='true'"><Compile Include="../NianLink.MultiDevice.Shared/PeerControlOwner.cs" Link="PeerControlOwner.cs" /></ItemGroup>
+  <Target Name="RejectMixedMultiDeviceCandidate" BeforeTargets="PrepareForBuild" Condition="'$(MultiDeviceCandidate)'=='true' And ('$(PreviewControlEngine)'=='true' Or '$(NativeInputEngine)'=='true')">
+    <Error Text="MultiDeviceCandidate is isolated from the existing input engines."/>
+  </Target>
+  <Target Name="RejectMixedInputEngines" BeforeTargets="PrepareForBuild" Condition="'$(PreviewControlEngine)'=='true' And '$(NativeInputEngine)'=='true'">
+    <Error Text="PreviewControlEngine preserves Deskflow and cannot be combined with NativeInputEngine."/>
+  </Target>
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="12.1.4"/>
+    <PackageReference Include="Avalonia.Desktop" Version="12.1.4"/>
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.4"/>
+    <ProjectReference Include="../DesktopToolbox.DeskLink/DesktopToolbox.DeskLink.csproj"/>
+    <ProjectReference Include="../Nian.Input.Mac/Nian.Input.Mac.csproj"/>
+    <ProjectReference Include="../Nian.Input.Runtime/Nian.Input.Runtime.csproj"/>
+    <Compile Remove="Tests/**/*.cs"/><AvaloniaResource Remove="Tests/**"/>
+    <None Remove="Tests/**"/>
+    <None Include="../DesktopToolbox.Collaboration.Ui/**/*" Link="CollaborationUi/%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest"/>
+    <AvaloniaResource Include="Assets/NianLinkBrand.png"/>
+    <None Update="Assets/libDeskLinkWeb.dylib" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" TargetPath="libDeskLinkWeb.dylib"/>
+    <None Update="Assets/DeskLinkMedia" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" TargetPath="DeskLinkMedia"/>
+  </ItemGroup>
+</Project>
+
+

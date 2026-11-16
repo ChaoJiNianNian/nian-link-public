@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "openssl_version": "3.5.9",
+  "executable_sha256": "d9ba6497cae979d825a09680290b590a1d7015f5bb515691bd108f76f61f903f",
+  "scope": "isolated local OpenSSL CLI only; not application or relocation validation",
+  "checks": [
+    {
+      "command": "openssl info -configdir",
+      "condition": "cleared OpenSSL path overrides in child",
+      "exit_code": 0,
+      "path_under_isolated_prefix": true
+    },
+    {
+      "command": "openssl info -enginesdir",
+      "condition": "cleared OpenSSL path overrides in child",
+      "exit_code": 0,
+      "path_under_isolated_prefix": true
+    },
+    {
+      "command": "openssl info -modulesdir",
+      "condition": "cleared OpenSSL path overrides in child",
+      "exit_code": 0,
+      "path_under_isolated_prefix": true
+    },
+    {
+      "command": "openssl info -windowscontext",
+      "condition": "cleared OpenSSL path overrides in child",
+      "exit_code": 0,
+      "windows_context": "undefined"
+    },
+    {
+      "command": "openssl list -providers",
+      "condition": "default configuration",
+      "exit_code": 0,
+      "provider_names": [
+        "default"
+      ]
+    },
+    {
+      "command": "openssl list -providers -provider legacy",
+      "condition": "explicit legacy",
+      "exit_code": 0,
+      "provider_names": [
+        "legacy"
+      ]
+    },
+    {
+      "command": "openssl list -providers -provider legacy",
+      "condition": "explicit legacy; nonexistent module directory",
+      "exit_code": 1,
+      "provider_names": []
+    },
+    {
+      "command": "openssl list -providers -provider default -provider legacy",
+      "condition": "explicit default and legacy",
+      "exit_code": 0,
+      "provider_names": [
+        "default",
+        "legacy"
+      ]
+    }
+  ]
+}

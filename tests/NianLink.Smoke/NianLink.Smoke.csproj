@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType><TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
+    <UseWPF>true</UseWPF><SupportedOSPlatformVersion>10.0.19041.0</SupportedOSPlatformVersion>
+    <AssemblyName>NianLink.Smoke</AssemblyName><Nullable>enable</Nullable><ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../src/NianLink.Windows/NianLink.Windows.csproj" />
+    <Compile Include="../../src/DesktopToolbox.Windows/DeskSwitch/PortOwnershipPolicy.cs" Link="Probe/PortOwnershipPolicy.cs" />
+    <Compile Include="../../src/DesktopToolbox.Windows/DeskSwitch/TcpListenerOwners.cs" Link="Probe/TcpListenerOwners.cs" />
+    <Content Include="../../src/DesktopToolbox.Collaboration.Ui/**/*" Link="CollaborationUi/%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="../../src/DesktopToolbox.App/DeskLink/mini-windows.css" Link="CollaborationUi/mini-windows.css" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

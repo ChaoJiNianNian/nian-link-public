@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net10.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable></PropertyGroup>
+  <ItemGroup>
+    <AssemblyMetadata Include="NianSyntheticWorkRoot" Value="$([MSBuild]::NormalizeDirectory('$(MSBuildThisFileDirectory)../.work'))" />
+    <Compile Include="../TestSupport/SyntheticWorkDirectory.cs" Link="SyntheticWorkDirectory.cs" /><ProjectReference Include="../../src/DesktopToolbox.Mac/DesktopToolbox.Mac.csproj"/><PackageReference Include="Avalonia.Headless" Version="12.1.4"/></ItemGroup>
+</Project>

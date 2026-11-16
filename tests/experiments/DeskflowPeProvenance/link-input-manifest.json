@@ -1,0 +1,255 @@
+{
+  "schema": "deskflow-relink-input-inventory-v1",
+  "scope": "Input hashes recorded from retained project objects, present external import libraries and current system libraries/tools after isolated relink; this cannot prove historical contents of these files, nor dynamic runtime contents.",
+  "project_and_import_inputs": [
+    {
+      "name": "mocs_compilation.cpp.obj",
+      "bytes": 621,
+      "sha256": "9a9f4b16f4540d7d12e45086bb431f00dcbdaee52354130f1780b0aee71c03e0"
+    },
+    {
+      "name": "deskflow-core.cpp.obj",
+      "bytes": 683888,
+      "sha256": "e015ff833aeef759d089d160b07c746be4711c2277dcc312cac2ab20b07bdd61"
+    },
+    {
+      "name": "CoreArgParser.cpp.obj",
+      "bytes": 569796,
+      "sha256": "f2d1978f3b2c0c46cf82ef2cb5214acff79b2921e3a7cf58126ebe7211238ef1"
+    },
+    {
+      "name": "deskflow-core.rc.res",
+      "bytes": 58052,
+      "sha256": "a23fff75b41382ae9083a3b15e22fddd814fd771e631fca55a3b544ac40d7798"
+    },
+    {
+      "name": "applink.c.obj",
+      "bytes": 5297,
+      "sha256": "20acbb20ca479ea67c958b3e88c3897eaace660c5eaec2846d2f7a85180fa7d0"
+    },
+    {
+      "name": "arch.lib",
+      "bytes": 1242042,
+      "sha256": "983060dfd3263430643d1c09adf651a3e5950f1139973f88f558bd24b0d87adb"
+    },
+    {
+      "name": "base.lib",
+      "bytes": 2391834,
+      "sha256": "92eb8050586640ffe8e56679e96afc4d1c3e0e7745156b370c405e86e41e1439"
+    },
+    {
+      "name": "client.lib",
+      "bytes": 1214818,
+      "sha256": "8623819061e146d389913d51e6f2b43e68e967d7c41963c34932fef1d8e67f09"
+    },
+    {
+      "name": "io.lib",
+      "bytes": 176920,
+      "sha256": "d56a296dc4446a2b09b54c679f0509d75c6082922bdc253725843a45134ffb5e"
+    },
+    {
+      "name": "mt.lib",
+      "bytes": 168270,
+      "sha256": "0a11e42aa3c20af200a039c60d15c0ce21ba5154fcfe3144b34234358eec7bcf"
+    },
+    {
+      "name": "net.lib",
+      "bytes": 2964508,
+      "sha256": "8793335dba94137f7aa503e10b423b05c2f02e64132904b731e62ab303b05663"
+    },
+    {
+      "name": "platform.lib",
+      "bytes": 4087658,
+      "sha256": "43ad89184960ba222ab1fcde890098c7cea8398d227d753a9d20de8ed775b9e9"
+    },
+    {
+      "name": "server.lib",
+      "bytes": 9424496,
+      "sha256": "ede6d38823a6b250ae7ae90eb5d8639059e9b95cbbf46811a7f3d265e8dfcec9"
+    },
+    {
+      "name": "app.lib",
+      "bytes": 8791550,
+      "sha256": "b0a6ccf526501b977c2802de2e5cc2e6203a9c28ef7c492b3bd4dd74e892f119"
+    },
+    {
+      "name": "common.lib",
+      "bytes": 3799550,
+      "sha256": "fc2f733e38feddeb396a20cc394342b84945f917a280d5cb978e8173f23dfc2e"
+    },
+    {
+      "name": "Qt6Widgets.lib",
+      "bytes": 3174170,
+      "sha256": "a3257249dd8afb71b1adbf8dcc7c94e3d51677ad2c59c4af0177450a89d013fb"
+    },
+    {
+      "name": "libssl.lib",
+      "bytes": 147386,
+      "sha256": "7d566aab3efeff948d6c738e3fbe58530b96b84052153bb384f4a3f9c1b39888"
+    },
+    {
+      "name": "libcrypto.lib",
+      "bytes": 1377216,
+      "sha256": "156de4b467bc13c43d7ced9433f9190e15b33eb86bfacabd0ad06a83fbc08f21"
+    },
+    {
+      "name": "Qt6Network.lib",
+      "bytes": 883354,
+      "sha256": "5e3e8080de1befac64e70268b492d74a7daac347ad912c6011bb7348d08b53a3"
+    },
+    {
+      "name": "Qt6Gui.lib",
+      "bytes": 3952266,
+      "sha256": "edef6f7318db40b189951bf832becda7f74339f94671e916c042ac024bc766a9"
+    },
+    {
+      "name": "Qt6Core.lib",
+      "bytes": 2941198,
+      "sha256": "104547d0b07cdf54654247d392c2a06a1befea068297af4c63c830c1348f77fa"
+    },
+    {
+      "name": "deskflow-core.exe.manifest",
+      "bytes": 396,
+      "sha256": "7ac032ba0bf474ad684524d6a524881e74a4b9051dee947ef6f97e2e7e116b63"
+    }
+  ],
+  "system_library_inputs": [
+    {
+      "name": "Wtsapi32.lib",
+      "bytes": 18734,
+      "sha256": "9b8aa71649cb098e5289acc468bde886695111411ac47e02da89c73872e9187f"
+    },
+    {
+      "name": "Userenv.lib",
+      "bytes": 19480,
+      "sha256": "2ae9d85e10d7536662b2657462ea6e4394c0143a187a75229e4e14599f6e4f2d"
+    },
+    {
+      "name": "Wininet.lib",
+      "bytes": 76238,
+      "sha256": "aec9124091d5ce42e5cc07c9dca96e5fd8ee8ba496aa78e6d120c43f62e3a7ec"
+    },
+    {
+      "name": "comsuppw.lib",
+      "bytes": 479338,
+      "sha256": "d0dd893ae5652647a596c63fa56e9de3aae6794707a68c20ad05fd61869a0ce4"
+    },
+    {
+      "name": "Shlwapi.lib",
+      "bytes": 74178,
+      "sha256": "d2c39baa1c2658e022a82410f283e89b8ef94b8ac0bf64f3532a954b0d8598d3"
+    },
+    {
+      "name": "version.lib",
+      "bytes": 4100,
+      "sha256": "391b955d560dd6b07b8fb16a536550ac6156fa5ffd537584a2d24ea6723a6c93"
+    },
+    {
+      "name": "Crypt32.lib",
+      "bytes": 60088,
+      "sha256": "eccee5cb58221f1d9eabecd38f7eb66f323b7e63e756593d403475ac71fd4a04"
+    },
+    {
+      "name": "ws2_32.lib",
+      "bytes": 260956,
+      "sha256": "6e754d032d34971459eec58bd224d729055e0a7e28dc893e0f90d1c6bfd3e8e4"
+    },
+    {
+      "name": "mpr.lib",
+      "bytes": 11886,
+      "sha256": "97624e606519354b0bc9eea1d17f3082ded236b2b2518c39944cd7664d99d336"
+    },
+    {
+      "name": "d3d11.lib",
+      "bytes": 3834,
+      "sha256": "043f509f20d5dc6269ddd81e8741b4ff075e2fc7983f5477b6cc618577b1cd8d"
+    },
+    {
+      "name": "dxgi.lib",
+      "bytes": 5522,
+      "sha256": "181cf09753c8db1ec62aaacc91574f1c6b54ae13526d1e77e83fd051c756af7f"
+    },
+    {
+      "name": "dxguid.lib",
+      "bytes": 1326546,
+      "sha256": "3e3b38d4d329b7e1225071115b10edf202a59bd391e521019d630b0adee0ccc3"
+    },
+    {
+      "name": "d3d12.lib",
+      "bytes": 5424,
+      "sha256": "3f48f63768e65fc0be7eb2bb9c06f96965bf2b692a3e96a5ffb2679ba8aeac1b"
+    },
+    {
+      "name": "kernel32.lib",
+      "bytes": 311908,
+      "sha256": "fd2f49b4b6def0e1b0c323c81d618ea13fd142292a484bed698027456c6b84d3"
+    },
+    {
+      "name": "user32.lib",
+      "bytes": 170460,
+      "sha256": "a086b4587322b81f47a83c369078849c704435ae5890fc0c8b7f8fb8889a2c2b"
+    },
+    {
+      "name": "gdi32.lib",
+      "bytes": 138880,
+      "sha256": "fb44ef338e7f43e859d749da5f8ce3c5743a16dafe067c52e5c5e5625fe1d2b2"
+    },
+    {
+      "name": "winspool.lib",
+      "bytes": 55892,
+      "sha256": "e39fccaf3a598e83a03695e2eee768d79ac8228a1bb67ad472ca6c10cc7a3a69"
+    },
+    {
+      "name": "shell32.lib",
+      "bytes": 272252,
+      "sha256": "1b6cd1a8e9d112ece0fafd995443a7fd15bf72fd16773940006a914d2f57793d"
+    },
+    {
+      "name": "ole32.lib",
+      "bytes": 118864,
+      "sha256": "f7b6d1e4a2f2a16c6a78ed821c8aa7f0b488112bb4da778285086e4588ca197a"
+    },
+    {
+      "name": "oleaut32.lib",
+      "bytes": 82126,
+      "sha256": "ccb86049288e4816e34b572f0d63a6b2c40d91777b092bb77ae639aa8e887ae5"
+    },
+    {
+      "name": "uuid.lib",
+      "bytes": 8967376,
+      "sha256": "6e1418c84d38f915d3eae71e7e601a3255ee6c7208ea3dce3f6fde511a2d6a25"
+    },
+    {
+      "name": "comdlg32.lib",
+      "bytes": 5526,
+      "sha256": "cf352af0a3563907cefd36121963651fe4cc57260ebf6cf1b1e4cfc7758ef922"
+    },
+    {
+      "name": "advapi32.lib",
+      "bytes": 178306,
+      "sha256": "ecafe89a632a35b183c2129d2d8612b31a4d43a9cda78c4b2e3bc6b130ae3c6f"
+    }
+  ],
+  "tools": [
+    {
+      "name": "cmake",
+      "bytes": 16566286,
+      "sha256": "d89963f5b90757a8b0f5164c1eea924e82a786b96dbd7657bf4c4c74a5e53c82"
+    },
+    {
+      "name": "link",
+      "bytes": 3252616,
+      "sha256": "a364af801a8539e4324d9489313dbf001d959128451fc99a27b24676bbac058f"
+    },
+    {
+      "name": "rc",
+      "bytes": 55744,
+      "sha256": "badcfc280d4464588d723fe5b0e57f6eef3a941082b4dbf225247beea5469c30"
+    },
+    {
+      "name": "mt",
+      "bytes": 1976744,
+      "sha256": "2a883da2559e0a579793baad51674e712acdac460e22806e654f9ad4bdd04c81"
+    }
+  ]
+}

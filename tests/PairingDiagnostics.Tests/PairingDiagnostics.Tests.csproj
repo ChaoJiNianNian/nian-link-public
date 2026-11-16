@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows</TargetFramework><IsPackable>false</IsPackable><IsTestProject>true</IsTestProject>
+    <Nullable>enable</Nullable><ImplicitUsings>enable</ImplicitUsings><LangVersion>latest</LangVersion>
+    <DefineConstants>$(DefineConstants);ISOLATED_SOCKET_CONFIGURATION_TEST;ISOLATED_CANDIDATE_SYNTHETIC_TEST</DefineConstants>
+    <DefineConstants Condition="'$(PairingDiagnosticsTestsEnabled)' != 'false'">$(DefineConstants);FILELESS_PAIRING_DIAGNOSTICS</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../src/DesktopToolbox.DeskLink/**/*.cs" Exclude="../../src/DesktopToolbox.DeskLink/bin/**;../../src/DesktopToolbox.DeskLink/obj/**" LinkBase="ProductSource" />
+    <Compile Include="../../src/NianLink.CandidateDiscovery/*.cs" LinkBase="CandidateSource" />
+    <ProjectReference Include="../../src/Nian.Input.Control/Nian.Input.Control.csproj" />
+    <ProjectReference Include="../../src/Nian.Input.Security/Nian.Input.Security.csproj" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.1"><PrivateAssets>all</PrivateAssets></PackageReference>
+    <Using Include="Xunit" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,56 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><TargetFramework>net10.0</TargetFramework><IsPackable>false</IsPackable><IsTestProject>true</IsTestProject><DefineConstants>$(DefineConstants);NIAN_PREVIEW_TEST_HOOKS</DefineConstants></PropertyGroup>
+  <ItemGroup>
+    <AssemblyMetadata Include="NianSyntheticWorkRoot" Value="$([MSBuild]::NormalizeDirectory('$(MSBuildThisFileDirectory)../../../tests/.work'))" />
+    <Compile Include="../../../tests/TestSupport/SyntheticWorkDirectory.cs" Link="SyntheticWorkDirectory.cs" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1"/>
+    <PackageReference Include="xunit" Version="2.9.3"/>
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.1"><PrivateAssets>all</PrivateAssets></PackageReference>
+    <Using Include="Xunit"/>
+    <Compile Include="../Models/*.cs" Link="Models/%(Filename)%(Extension)"/>
+    <Compile Include="../../NianLink.MacDiscoveryCandidate/DiscoveryUiController.cs" Link="Discovery/DiscoveryUiController.cs"/>
+    <Compile Include="../../NianLink.MacDiscoveryCandidate/LiveMacDiscoveryBackend.cs" Link="Discovery/LiveMacDiscoveryBackend.cs"/>
+    <Compile Include="../ViewModels/*.cs" Link="ViewModels/%(Filename)%(Extension)"/>
+    <Compile Include="../Services/IMacMediaBridge.cs" Link="Services/IMacMediaBridge.cs"/>
+    <Compile Include="../Services/MacMediaBridge.cs" Link="Services/MacMediaBridge.cs"/>
+    <Compile Include="../Services/LivePreview/*.cs" Link="Services/LivePreview/%(Filename)%(Extension)"/>
+    <Compile Include="../Services/MacCollaborationService.cs" Link="Services/MacCollaborationService.cs"/>
+    <Compile Include="../Services/MacMultiPeerClient.cs" Link="Services/MacMultiPeerClient.cs"/>
+    <Compile Include="../../NianLink.MultiDevice.Shared/PeerControlOwner.cs" Link="PeerControlOwner.cs"/>
+    <Compile Include="../Services/MacMultiPeerProtector.cs" Link="Services/MacMultiPeerProtector.cs"/>
+    <Compile Include="../Services/MacCollaborationService.PreviewControl.cs" Link="Services/MacCollaborationService.PreviewControl.cs"/>
+    <Compile Include="../Services/MacCollaborationService.LivePreview.cs" Link="Services/MacCollaborationService.LivePreview.cs"/>
+    <Compile Include="../Services/MacCollaborationService.PassivePreview.cs" Link="Services/MacCollaborationService.PassivePreview.cs"/>
+    <Compile Include="../Services/MacClipboardEchoGuard.cs" Link="Services/MacClipboardEchoGuard.cs"/>
+    <Compile Include="../Services/MacScreenCaptureReply.cs" Link="Services/MacScreenCaptureReply.cs"/>
+    <Compile Include="../Services/MacPrivateStore.cs" Link="Services/MacPrivateStore.cs"/>
+    <Compile Include="../Services/IMacLinkService.cs" Link="Services/IMacLinkService.cs"/>
+    <Compile Include="../Services/MacLinkService.cs" Link="Services/MacLinkService.cs"/>
+    <Compile Include="../Services/MacLinkService.PreviewHandoff.cs" Link="Services/MacLinkService.PreviewHandoff.cs"/>
+    <Compile Include="../Services/MacPreviewAwareLinkService.cs" Link="Services/MacPreviewAwareLinkService.cs"/>
+    <Compile Include="../Services/MacPreviewAdmissionObserver.cs" Link="Services/MacPreviewAdmissionObserver.cs"/>
+    <Compile Include="../Services/MacNative*.cs" Link="Services/%(Filename)%(Extension)"/>
+    <Compile Include="../Services/IMacWirelessModeService.cs" Link="Services/IMacWirelessModeService.cs"/>
+    <Compile Include="../Services/StandaloneWirelessUnavailable.cs" Link="Services/StandaloneWirelessUnavailable.cs"/>
+    <Compile Include="../Services/MacWirelessModeService.cs" Link="Services/MacWirelessModeService.cs"/>
+    <Compile Include="../Services/MacWirelessCommandRunner.cs" Link="Services/MacWirelessCommandRunner.cs"/>
+    <Compile Include="../Services/MacWirelessKeepDefinition.cs" Link="Services/MacWirelessKeepDefinition.cs"/>
+    <Compile Include="../Services/MacDisplaySwitchCoordinator.cs" Link="Services/MacDisplaySwitchCoordinator.cs"/>
+    <Compile Include="../Services/MacDisplayBridgeProcess.cs" Link="Services/MacDisplayBridgeProcess.cs"/>
+    <Compile Include="../Services/MacMultiDisplayDevice.cs" Link="Services/MacMultiDisplayDevice.cs"/>
+    <Compile Include="../Services/MacDisplayBridgeCommand.cs" Link="Services/MacDisplayBridgeCommand.cs"/>
+    <Compile Include="../Services/Display/*.cs" Link="Services/Display/%(Filename)%(Extension)"/>
+    <Compile Remove="BridgeChildFixture/**/*.cs"/>
+    <Compile Remove="UiFixture/**/*.cs"/>
+    <ProjectReference Include="BridgeChildFixture/BridgeChildFixture.csproj" ReferenceOutputAssembly="false"/>
+    <ProjectReference Include="../../DesktopToolbox.DeskLink/DesktopToolbox.DeskLink.csproj"/>
+    <ProjectReference Include="../../Nian.Input.Mac/Nian.Input.Mac.csproj"/>
+    <ProjectReference Include="../../Nian.Input.Runtime/Nian.Input.Runtime.csproj"/>
+    <ProjectReference Include="../../NianLink.MacResponderCandidate/NianLink.MacResponderCandidate.csproj"/>
+  </ItemGroup>
+  <Target Name="CopyBridgeChildFixture" AfterTargets="Build">
+    <ItemGroup><BridgeFixtureFiles Include="$(MSBuildProjectDirectory)/BridgeChildFixture/bin/$(Configuration)/net10.0/*"/></ItemGroup>
+    <Copy SourceFiles="@(BridgeFixtureFiles)" DestinationFolder="$(OutDir)bridge-fixture"/>
+  </Target>
+</Project>
+

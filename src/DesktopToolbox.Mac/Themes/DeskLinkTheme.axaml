@@ -1,0 +1,111 @@
+<Styles xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <Styles.Resources>
+    <FontFamily x:Key="ContentControlThemeFontFamily">PingFang SC, Hiragino Sans GB, Helvetica Neue, $Default</FontFamily>
+    <SolidColorBrush x:Key="DeskBackground">#202024</SolidColorBrush>
+    <SolidColorBrush x:Key="DeskSurface">#29292E</SolidColorBrush>
+    <SolidColorBrush x:Key="DeskBorder">#3E3E46</SolidColorBrush>
+    <SolidColorBrush x:Key="DeskForeground">#F2F2F5</SolidColorBrush>
+    <SolidColorBrush x:Key="DeskMuted">#A9A9B4</SolidColorBrush>
+    <SolidColorBrush x:Key="DeskAccent">#9DB7E8</SolidColorBrush>
+
+    <!-- Fluent's own templates consume these keys for every interaction state. -->
+    <SolidColorBrush x:Key="ButtonBackground">#303036</SolidColorBrush>
+    <SolidColorBrush x:Key="ButtonBackgroundPointerOver">#3B3B43</SolidColorBrush>
+    <SolidColorBrush x:Key="ButtonBackgroundPressed">#27272D</SolidColorBrush>
+    <SolidColorBrush x:Key="ButtonBackgroundDisabled">#242429</SolidColorBrush>
+    <SolidColorBrush x:Key="ButtonForeground">#F2F2F5</SolidColorBrush>
+    <SolidColorBrush x:Key="ButtonForegroundPointerOver">#FFFFFF</SolidColorBrush>
+    <SolidColorBrush x:Key="ButtonForegroundPressed">#E2E5EF</SolidColorBrush>
+    <SolidColorBrush x:Key="ButtonForegroundDisabled">#878792</SolidColorBrush>
+    <SolidColorBrush x:Key="ButtonBorderBrush">#45454F</SolidColorBrush>
+    <SolidColorBrush x:Key="ButtonBorderBrushPointerOver">#62626F</SolidColorBrush>
+    <SolidColorBrush x:Key="ButtonBorderBrushPressed">#9DB7E8</SolidColorBrush>
+    <SolidColorBrush x:Key="ButtonBorderBrushDisabled">#36363E</SolidColorBrush>
+    <SolidColorBrush x:Key="AccentButtonBackground">#9DB7E8</SolidColorBrush>
+    <SolidColorBrush x:Key="AccentButtonBackgroundPointerOver">#B0C6EE</SolidColorBrush>
+    <SolidColorBrush x:Key="AccentButtonBackgroundPressed">#859FD0</SolidColorBrush>
+    <SolidColorBrush x:Key="AccentButtonBackgroundDisabled">#242429</SolidColorBrush>
+    <SolidColorBrush x:Key="AccentButtonForeground">#1B2433</SolidColorBrush>
+    <SolidColorBrush x:Key="AccentButtonForegroundPointerOver">#1B2433</SolidColorBrush>
+    <SolidColorBrush x:Key="AccentButtonForegroundPressed">#1B2433</SolidColorBrush>
+    <SolidColorBrush x:Key="AccentButtonForegroundDisabled">#878792</SolidColorBrush>
+    <SolidColorBrush x:Key="AccentButtonBorderBrush">#ACC2EB</SolidColorBrush>
+    <SolidColorBrush x:Key="AccentButtonBorderBrushPointerOver">#CDDAF3</SolidColorBrush>
+    <SolidColorBrush x:Key="AccentButtonBorderBrushPressed">#9DB7E8</SolidColorBrush>
+    <SolidColorBrush x:Key="AccentButtonBorderBrushDisabled">#36363E</SolidColorBrush>
+
+    <SolidColorBrush x:Key="TextControlBackground">#232328</SolidColorBrush>
+    <SolidColorBrush x:Key="TextControlBackgroundPointerOver">#2C2C32</SolidColorBrush>
+    <SolidColorBrush x:Key="TextControlBackgroundFocused">#26262D</SolidColorBrush>
+    <SolidColorBrush x:Key="TextControlBackgroundDisabled">#242429</SolidColorBrush>
+    <SolidColorBrush x:Key="TextControlForeground">#F2F2F5</SolidColorBrush>
+    <SolidColorBrush x:Key="TextControlForegroundPointerOver">#F2F2F5</SolidColorBrush>
+    <SolidColorBrush x:Key="TextControlForegroundFocused">#F2F2F5</SolidColorBrush>
+    <SolidColorBrush x:Key="TextControlForegroundDisabled">#A3A3AE</SolidColorBrush>
+    <SolidColorBrush x:Key="TextControlBorderBrush">#45454F</SolidColorBrush>
+    <SolidColorBrush x:Key="TextControlBorderBrushPointerOver">#62626F</SolidColorBrush>
+    <SolidColorBrush x:Key="TextControlBorderBrushFocused">#9DB7E8</SolidColorBrush>
+    <SolidColorBrush x:Key="TextControlBorderBrushDisabled">#36363E</SolidColorBrush>
+    <SolidColorBrush x:Key="TextControlPlaceholderForeground">#A9A9B4</SolidColorBrush>
+    <SolidColorBrush x:Key="TextControlSelectionHighlightColor">#5E7299</SolidColorBrush>
+
+    <SolidColorBrush x:Key="ExpanderHeaderBackground">#25252B</SolidColorBrush>
+    <SolidColorBrush x:Key="ExpanderHeaderBackgroundPointerOver">#303036</SolidColorBrush>
+    <SolidColorBrush x:Key="ExpanderHeaderBackgroundPressed">#232328</SolidColorBrush>
+    <SolidColorBrush x:Key="ExpanderHeaderBackgroundDisabled">#242429</SolidColorBrush>
+    <SolidColorBrush x:Key="ExpanderHeaderBorderBrush">#3E3E46</SolidColorBrush>
+    <SolidColorBrush x:Key="ExpanderHeaderBorderBrushPointerOver">#62626F</SolidColorBrush>
+    <SolidColorBrush x:Key="ExpanderHeaderBorderBrushPressed">#9DB7E8</SolidColorBrush>
+    <SolidColorBrush x:Key="ExpanderHeaderBorderBrushDisabled">#36363E</SolidColorBrush>
+    <SolidColorBrush x:Key="ExpanderHeaderForeground">#F2F2F5</SolidColorBrush>
+    <SolidColorBrush x:Key="ExpanderHeaderForegroundPointerOver">#FFFFFF</SolidColorBrush>
+    <SolidColorBrush x:Key="ExpanderHeaderForegroundPressed">#F2F2F5</SolidColorBrush>
+    <SolidColorBrush x:Key="ExpanderHeaderForegroundDisabled">#878792</SolidColorBrush>
+    <SolidColorBrush x:Key="ExpanderContentBackground">#25252B</SolidColorBrush>
+    <SolidColorBrush x:Key="ExpanderContentBorderBrush">#3E3E46</SolidColorBrush>
+    <SolidColorBrush x:Key="ExpanderChevronBackground">Transparent</SolidColorBrush>
+    <SolidColorBrush x:Key="ExpanderChevronBackgroundPointerOver">#3B3B43</SolidColorBrush>
+    <SolidColorBrush x:Key="ExpanderChevronBackgroundPressed">#303036</SolidColorBrush>
+    <SolidColorBrush x:Key="ExpanderChevronBackgroundDisabled">Transparent</SolidColorBrush>
+    <SolidColorBrush x:Key="ExpanderChevronForeground">#A9A9B4</SolidColorBrush>
+    <SolidColorBrush x:Key="ExpanderChevronForegroundPointerOver">#F2F2F5</SolidColorBrush>
+    <SolidColorBrush x:Key="ExpanderChevronForegroundPressed">#9DB7E8</SolidColorBrush>
+    <SolidColorBrush x:Key="ExpanderChevronForegroundDisabled">#878792</SolidColorBrush>
+  </Styles.Resources>
+
+  <Style Selector="Window">
+    <Setter Property="Background" Value="{DynamicResource DeskBackground}"/>
+    <Setter Property="Foreground" Value="{DynamicResource DeskForeground}"/>
+    <Setter Property="FontFamily" Value="{DynamicResource ContentControlThemeFontFamily}"/>
+    <Setter Property="FontSize" Value="14"/><Setter Property="FontWeight" Value="Normal"/>
+  </Style>
+  <Style Selector="Button">
+    <Setter Property="CornerRadius" Value="10"/><Setter Property="Padding" Value="16,11"/>
+    <Setter Property="MinHeight" Value="42"/><Setter Property="BorderThickness" Value="1"/>
+    <Setter Property="HorizontalContentAlignment" Value="Center"/><Setter Property="VerticalContentAlignment" Value="Center"/><Setter Property="Cursor" Value="Hand"/>
+  </Style>
+  <Style Selector="Button:disabled"><Setter Property="Cursor" Value="Arrow"/></Style>
+  <Style Selector="Button.secondary"><Setter Property="Background" Value="{DynamicResource ButtonBackground}"/></Style>
+  <Style Selector="Button.quiet /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="Transparent"/><Setter Property="BorderBrush" Value="Transparent"/>
+    <Setter Property="Foreground" Value="{DynamicResource DeskMuted}"/>
+  </Style>
+  <Style Selector="Button.quiet:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="#303036"/><Setter Property="Foreground" Value="{DynamicResource DeskForeground}"/>
+  </Style>
+  <Style Selector="Button.quiet:pressed /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="#232328"/><Setter Property="Foreground" Value="{DynamicResource DeskAccent}"/>
+  </Style>
+  <Style Selector="Button.quiet:disabled /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource ButtonBackgroundDisabled}"/>
+    <Setter Property="Foreground" Value="{DynamicResource ButtonForegroundDisabled}"/>
+  </Style>
+  <Style Selector="TextBox"><Setter Property="CornerRadius" Value="9"/><Setter Property="MinHeight" Value="42"/></Style>
+  <Style Selector="Expander"><Setter Property="HorizontalAlignment" Value="Stretch"/><Setter Property="HorizontalContentAlignment" Value="Stretch"/><Setter Property="CornerRadius" Value="9"/></Style>
+  <Style Selector="Border.card">
+    <Setter Property="Background" Value="{DynamicResource DeskSurface}"/><Setter Property="BorderBrush" Value="{DynamicResource DeskBorder}"/>
+    <Setter Property="BorderThickness" Value="1"/><Setter Property="CornerRadius" Value="16"/><Setter Property="Padding" Value="20"/>
+  </Style>
+  <Style Selector="TextBlock.muted"><Setter Property="Foreground" Value="{DynamicResource DeskMuted}"/></Style>
+  <Style Selector="TextBlock.accent-text"><Setter Property="Foreground" Value="{DynamicResource DeskAccent}"/></Style>
+</Styles>

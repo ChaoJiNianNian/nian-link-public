@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><TargetFramework>net10.0</TargetFramework><Nullable>enable</Nullable><ImplicitUsings>enable</ImplicitUsings></PropertyGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="MacDiscoveryBoundary.Tests" />
+    <InternalsVisibleTo Include="NianLink.MacResponderCandidate" />
+    <ProjectReference Include="../DesktopToolbox.DeskLink/DesktopToolbox.DeskLink.csproj" />
+    <Compile Include="../DesktopToolbox.DeskLink/DiscoverySubnet.cs" Link="DiscoverySubnet.cs" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(NianWifiEvidencePinnedSha256)' != ''">
+    <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
+      <_Parameter1>NianWifiEvidencePinnedSha256</_Parameter1>
+      <_Parameter2>$(NianWifiEvidencePinnedSha256)</_Parameter2>
+    </AssemblyAttribute>
+  </ItemGroup>
+  <Target Name="ValidateNianWifiEvidencePin" BeforeTargets="GenerateAssemblyInfo;CoreCompile">
+    <Error Condition="'$(NianWifiEvidencePinnedSha256)' != '' and !$([System.Text.RegularExpressions.Regex]::IsMatch('$(NianWifiEvidencePinnedSha256)', '\A[0-9a-f]{64}\z'))"
+           Text="NianWifiEvidencePinnedSha256 must be exactly 64 lowercase hexadecimal characters." />
+  </Target>
+</Project>

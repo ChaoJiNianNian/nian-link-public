@@ -1,0 +1,175 @@
+using DesktopToolbox.DeskLink.Collaboration.LivePreview;
+using DesktopToolbox.DeskLink.Preview;
+
+namespace DesktopToolbox.Mac.Services;
+
+/// <summary>Retains a multi-device operation until its actual live receiver stops.</summary>
+public sealed class MacMultiLivePreviewSource : IControlLivePreviewSource
+{
+    private sealed class Run(Guid id, MacMultiPeerClient.CollaborationOperation operation)
+    {
+        internal readonly Guid Id = id;
+        internal readonly MacMultiPeerClient.CollaborationOperation Operation = operation;
+        internal readonly TaskCompletionSource StartSettled = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        internal Task? Stop;
+    }
+    private readonly MacMultiPeerClient.CollaborationLease lease;
+    private readonly IControlLivePreviewSource inner;
+    private readonly object gate = new();
+    private readonly CancellationTokenRegistration cancellation;
+    private Run? current;
+    private bool disposed;
+    private Task? disposing;
+
+    public MacMultiLivePreviewSource(MacMultiPeerClient.CollaborationLease lease, IControlLivePreviewSource inner)
+    {
+        this.lease = lease ?? throw new ArgumentNullException(nameof(lease));
+        this.inner = inner ?? throw new ArgumentNullException(nameof(inner));
+        inner.PacketReceived += OnPacket;
+        inner.StreamClosed += OnClosed;
+        cancellation = lease.Cancellation.Register(QueueCurrentStop);
+    }
+    public bool IsSupported
+    {
+        get { bool ready; lock (gate) ready = !disposed && disposing is null; return ready && lease.IsActive && inner.IsSupported; }
+    }
+    public string UnavailableHint => inner.UnavailableHint;
+    public event Action<Guid, LivePreviewCapturePacket>? PacketReceived;
+    public event Action<Guid, string>? StreamClosed;
+
+    public async Task StartAsync(Guid operationId, CancellationToken cancellationToken = default)
+    {
+        if (operationId == Guid.Empty) throw new ArgumentException("A preview operation is required.", nameof(operationId));
+        if (!lease.TryEnter(out var registration) || registration is null)
+            throw new InvalidOperationException("协作连接已暂停，请重新连接。");
+        var run = new Run(operationId, registration);
+        var accepted = false;
+        if (!lease.TryCommit(() =>
+            {
+                lock (gate)
+                {
+                    if (!disposed && disposing is null && current is null) { current = run; accepted = true; }
+                }
+            }) || !accepted)
+        {
+            registration.Dispose();
+            throw new InvalidOperationException("协作连接已暂停或画面流仍在停止。");
+        }
+        using var linked = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, registration.Token);
+        try
+        {
+            await inner.StartAsync(operationId, linked.Token);
+            run.StartSettled.TrySetResult();
+            if (!lease.IsActive || cancellationToken.IsCancellationRequested)
+            {
+                await StopOnceAsync(run);
+                throw new OperationCanceledException("画面连接已停止。", linked.Token);
+            }
+            bool owned; lock (gate) owned = ReferenceEquals(current, run);
+            if (!owned) throw new InvalidOperationException("画面流已结束，请重新连接。");
+        }
+        catch (Exception error)
+        {
+            run.StartSettled.TrySetResult();
+            try { await StopOnceAsync(run); }
+            catch (Exception cleanup) { throw new AggregateException("画面流停止尚未完成。", error, cleanup); }
+            throw;
+        }
+        finally { run.StartSettled.TrySetResult(); }
+    }
+
+    public async Task StopAsync(Guid operationId, CancellationToken cancellationToken = default)
+    {
+        Run? run;
+        lock (gate) run = current?.Id == operationId ? current : null;
+        if (run is not null) await StopOnceAsync(run).WaitAsync(cancellationToken);
+    }
+
+    private Task StopOnceAsync(Run run)
+    {
+        TaskCompletionSource? completion = null;
+        Task task;
+        lock (gate)
+        {
+            if (!ReferenceEquals(current, run)) return Task.CompletedTask;
+            if (run.Stop is not null) return run.Stop;
+            completion = new(TaskCreationOptions.RunContinuationsAsynchronously);
+            task = completion.Task;
+            run.Stop = task;
+        }
+        _ = Task.Run(() => CompleteStopAsync(run, completion));
+        return task;
+    }
+
+    private async Task CompleteStopAsync(Run run, TaskCompletionSource completion)
+    {
+        try
+        {
+            // A stop before Start settles must not mistake an empty source for a
+            // drained receiver that Start is still about to create.
+            await run.StartSettled.Task;
+            await inner.StopAsync(run.Id, CancellationToken.None);
+            lock (gate) { if (ReferenceEquals(current, run)) current = null; }
+            run.Operation.Dispose();
+            completion.TrySetResult();
+        }
+        catch (Exception error)
+        {
+            lock (gate) { if (ReferenceEquals(current, run)) run.Stop = null; }
+            completion.TrySetException(error);
+        }
+    }
+
+    private void QueueCurrentStop()
+    {
+        Run? run; lock (gate) run = current;
+        if (run is not null) _ = Task.Run(async () => { try { await StopOnceAsync(run); } catch { } });
+    }
+    private void OnClosed(Guid id, string reason)
+    {
+        Run? run; lock (gate) run = current?.Id == id ? current : null;
+        if (run is null) return;
+        // The close event may run on the receiver being stopped: never wait here.
+        _ = Task.Run(async () => { try { await StopOnceAsync(run); } catch { } });
+        if (lease.IsActive) StreamClosed?.Invoke(id, reason);
+    }
+    private void OnPacket(Guid id, LivePreviewCapturePacket packet)
+    {
+        bool matches; lock (gate) matches = current?.Id == id;
+        if (matches && lease.IsActive) PacketReceived?.Invoke(id, packet);
+    }
+    public ValueTask DisposeAsync()
+    {
+        Run? run;
+        TaskCompletionSource completion;
+        lock (gate)
+        {
+            if (disposed) return ValueTask.CompletedTask;
+            if (disposing is not null) return new(disposing);
+            completion = new(TaskCreationOptions.RunContinuationsAsynchronously);
+            disposing = completion.Task;
+            run = current;
+        }
+        _ = Task.Run(() => CompleteDisposeAsync(run, completion));
+        return new(completion.Task);
+    }
+
+    private async Task CompleteDisposeAsync(Run? run, TaskCompletionSource completion)
+    {
+        try
+        {
+            if (run is not null) await StopOnceAsync(run);
+            await inner.DisposeAsync();
+            cancellation.Dispose();
+            inner.PacketReceived -= OnPacket;
+            inner.StreamClosed -= OnClosed;
+            lock (gate) disposed = true;
+            completion.TrySetResult();
+        }
+        catch (Exception error)
+        {
+            lock (gate) disposing = null;
+            completion.TrySetException(error);
+        }
+    }
+}

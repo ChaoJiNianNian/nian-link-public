@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType><TargetFramework>net10.0-windows</TargetFramework>
+    <Nullable>enable</Nullable><ImplicitUsings>enable</ImplicitUsings><LangVersion>latest</LangVersion>
+    <DefineConstants>$(DefineConstants);ISOLATED_CANDIDATE_SYNTHETIC_TEST</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../src/DesktopToolbox.DeskLink/**/*.cs" Exclude="../../src/DesktopToolbox.DeskLink/bin/**;../../src/DesktopToolbox.DeskLink/obj/**" LinkBase="DeskLinkSource" />
+    <Compile Include="../../src/NianLink.CandidateDiscovery/*.cs" LinkBase="CandidateSource" />
+    <Compile Include="../PrivateUdpProbe/ProbeRules.cs" Link="ProbeRules.cs" />
+    <Compile Include="../PrivateUdpProbe/ProbeEnvironment.cs" Link="ProbeEnvironment.cs" />
+    <Compile Include="../PrivateUdpProbe/ProbeParentIdentity.cs" Link="ProbeParentIdentity.cs" />
+    <Compile Include="../PrivateUdpProbe/ProbeChildCleanup.cs" Link="ProbeChildCleanup.cs" />
+    <ProjectReference Include="../../src/Nian.Input.Control/Nian.Input.Control.csproj" />
+    <ProjectReference Include="../../src/Nian.Input.Security/Nian.Input.Security.csproj" />
+  </ItemGroup>
+</Project>

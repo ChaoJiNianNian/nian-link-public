@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><TargetFramework>net10.0</TargetFramework><IsPackable>false</IsPackable><IsTestProject>true</IsTestProject><Nullable>enable</Nullable><ImplicitUsings>enable</ImplicitUsings><DefineConstants>$(DefineConstants);MAC_WIFI_TESTING</DefineConstants></PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../MacSystemProbe/Probe.cs" Link="MacSystemProbe/Probe.cs" />
+    <Compile Include="../../src/NianLink.MacCandidateDiscovery/MacWifiEvidenceReader.cs" Link="MacWifiEvidenceReader.TestOnly.cs" />
+    <Compile Include="../../src/NianLink.MacCandidateDiscovery/MacReadOnlyMappingProbe.cs" Link="MacReadOnlyMappingProbe.TestOnly.cs" />
+    <Compile Include="../../src/NianLink.MacCandidateDiscovery/MacBindingRevalidator.cs" Link="MacBindingRevalidator.TestOnly.cs" />
+    <Compile Include="../MacManagedWifiProbe/Program.cs" Link="MacManagedWifiProbe.TestOnly.cs" />
+    <Compile Include="../MacManagedWifiProbe/ProbeDigest.cs" Link="ProbeDigest.TestOnly.cs" />
+    <Compile Include="../MacManagedMappingProbe/Program.cs" Link="MacManagedMappingProbe.TestOnly.cs" />
+    <ProjectReference Include="../../src/NianLink.MacDiscoveryBoundary/NianLink.MacDiscoveryBoundary.csproj" />
+    <ProjectReference Include="../../src/NianLink.MacCandidateDiscovery/NianLink.MacCandidateDiscovery.csproj" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.1"><PrivateAssets>all</PrivateAssets></PackageReference>
+    <Using Include="Xunit" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net10.0</TargetFramework><Nullable>enable</Nullable><ImplicitUsings>enable</ImplicitUsings></PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../src/DesktopToolbox.DeskLink/DesktopToolbox.DeskLink.csproj" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/DiscoverySubnet.cs" Link="DiscoverySubnet.cs" />
+    <Compile Include="../../src/NianLink.MacCandidateDiscovery/MacCandidateNetworkBinding.cs" Link="MacCandidateNetworkBinding.cs" />
+    <Compile Include="../../src/NianLink.MacCandidateDiscovery/MacWifiEvidenceReader.cs" Link="MacWifiEvidenceReader.cs" />
+    <Compile Include="../../src/NianLink.MacCandidateDiscovery/MacReadOnlyMappingProbe.cs" Link="MacReadOnlyMappingProbe.cs" />
+    <Compile Include="../../src/NianLink.MacCandidateDiscovery/MacBindingRevalidator.cs" Link="MacBindingRevalidator.cs" />
+    <Compile Include="../MacManagedWifiProbe/ProbeDigest.cs" Link="ProbeDigest.cs" />
+  </ItemGroup>
+</Project>

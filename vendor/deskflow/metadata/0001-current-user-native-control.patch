@@ -1,0 +1,509 @@
+diff --git a/src/lib/base/EventTypes.h b/src/lib/base/EventTypes.h
+--- a/src/lib/base/EventTypes.h
++++ b/src/lib/base/EventTypes.h
+@@ -238,5 +238,8 @@ enum class EventTypes : uint32_t
+ 
+   /// Stop libei
+   EISessionClosed,
++
++  // DesktopToolbox current-user control, handled by native EventQueue.
++  DeskToolboxControlRequest,
+ };
+ } // namespace deskflow
+diff --git a/src/lib/server/Server.h b/src/lib/server/Server.h
+--- a/src/lib/server/Server.h
++++ b/src/lib/server/Server.h
+@@ -18,6 +18,8 @@
+ #include "server/Config.h"
+ 
+ #include <climits>
++#include <cstdint>
++#include <functional>
+ #include <map>
+ #include <set>
+ #include <vector>
+@@ -200,6 +202,16 @@ public:
+   void sendConnectedClientsIpc() const;
+   size_t getMaximumClipboardSizeBytes() const;
+ 
++  // DesktopToolbox: call only on the native EventQueue thread.
++  struct ControlState {
++    std::string activeComputer;
++    std::vector<std::string> connectedComputers; // Remote clients only.
++    std::uint64_t revision = 0;
++  };
++  ControlState controlState() const;
++  bool controlSwitchTo(const std::string &target, std::string &error);
++  void setControlObserver(std::function<void(const ControlState &, bool)> observer);
++
+   //@}
+ 
+ private:
+@@ -373,6 +385,9 @@ private:
+   };
+   // Order suggested by clang
+ 
++  void notifyControlState(bool focusChanged) const;
++  std::function<void(const ControlState &, bool)> m_controlObserver;
++
+   // the Primary Computer Client
+   PrimaryClient *m_primaryClient = nullptr;
+ 
+diff --git a/src/lib/server/Server.cpp b/src/lib/server/Server.cpp
+--- a/src/lib/server/Server.cpp
++++ b/src/lib/server/Server.cpp
+@@ -40,6 +40,9 @@ using namespace deskflow::server;
+ // Server
+ //
+ 
++// Process-wide, accessed exclusively by the native EventQueue thread.
++static std::uint64_t s_deskToolboxRevision = 0;
++
+ Server::Server(ServerConfig &config, PrimaryClient *primaryClient, deskflow::Computer *computer, IEventQueue *events)
+     : m_primaryClient(primaryClient),
+       m_active(primaryClient),
+@@ -324,6 +327,42 @@ void Server::sendConnectedClientsIpc() const
+     }
+   }
+   ipcSendToClient("connectedClients", clientList.join(","));
++  notifyControlState(false);
++}
++
++Server::ControlState Server::controlState() const
++{
++  ControlState state;
++  state.activeComputer = m_active ? getName(m_active) : std::string{};
++  state.revision = s_deskToolboxRevision;
++  const auto local = getName(m_primaryClient);
++  for (const auto &[name, client] : m_clients)
++    if (name != local) state.connectedComputers.push_back(name);
++  return state;
++}
++
++void Server::setControlObserver(std::function<void(const ControlState &, bool)> observer)
++{
++  m_controlObserver = std::move(observer);
++  notifyControlState(false);
++}
++
++void Server::notifyControlState(bool focusChanged) const
++{
++  if (m_controlObserver) m_controlObserver(controlState(), focusChanged);
++}
++
++bool Server::controlSwitchTo(const std::string &target, std::string &error)
++{
++  if (!m_config->isComputer(target)) { error = "unknown_computer"; return false; }
++  const auto canonical = m_config->getCanonicalName(target);
++  const auto found = m_clients.find(canonical);
++  if (found == m_clients.end()) { error = "computer_offline"; return false; }
++  if (m_active == found->second) { error.clear(); return true; }
++  jumpToComputer(found->second);
++  if (m_active != found->second) { error = "switch_rejected"; return false; }
++  error.clear();
++  return true;
+ }
+ 
+ std::string Server::getName(const BaseClientProxy *client) const
+@@ -491,6 +530,8 @@ void Server::switchComputer(BaseClientProxy *dst, int32_t x, int32_t y, bool for
+ 
+     // enter new computer
+     m_active->enter(x, y, m_seqNum, m_primaryClient->getToggleMask(), forScreensaver);
++    ++s_deskToolboxRevision;
++    notifyControlState(true);
+ 
+     if (m_enableClipboard) {
+       // send the clipboard data to new active computer
+@@ -2043,6 +2084,7 @@ void Server::forceLeaveClient(const BaseClientProxy *client)
+     );
+ 
+     // cut over
++    const bool focusChanged = m_active != m_primaryClient;
+     m_active = m_primaryClient;
+ 
+     // enter new computer (unless we already have because of the
+@@ -2050,6 +2092,10 @@ void Server::forceLeaveClient(const BaseClientProxy *client)
+     if (m_activeSaver == nullptr) {
+       m_primaryClient->enter(m_x, m_y, m_seqNum, m_primaryClient->getToggleMask(), false);
+     }
++    if (focusChanged) {
++      ++s_deskToolboxRevision;
++      notifyControlState(true);
++    }
+   }
+ 
+   // if this computer had the cursor when the screen saver activated
+diff --git a/src/lib/deskflow/ServerApp.h b/src/lib/deskflow/ServerApp.h
+--- a/src/lib/deskflow/ServerApp.h
++++ b/src/lib/deskflow/ServerApp.h
+@@ -13,6 +13,7 @@
+ #include "deskflow/App.h"
+ #include "net/NetworkAddress.h"
+ #include "server/Config.h"
++#include "server/Server.h"
+ 
+ #include <memory>
+ 
+@@ -90,6 +91,10 @@ public:
+   {
+     return m_server;
+   }
++  void setControlObserver(std::function<void(const Server::ControlState &, bool)> observer)
++  {
++    m_controlObserver = std::move(observer);
++  }
+ 
+   //
+   // Static functions
+@@ -106,6 +111,7 @@ private:
+   std::unique_ptr<ISocketFactory> getSocketFactory() const;
+   NetworkAddress getAddress(const NetworkAddress &address) const;
+ 
++  std::function<void(const Server::ControlState &, bool)> m_controlObserver;
+   bool m_suspended = false;
+   Server *m_server = nullptr;
+   ServerState m_serverState = ServerState::Uninitialized;
+diff --git a/src/lib/deskflow/ServerApp.cpp b/src/lib/deskflow/ServerApp.cpp
+--- a/src/lib/deskflow/ServerApp.cpp
++++ b/src/lib/deskflow/ServerApp.cpp
+@@ -464,6 +464,7 @@ ClientListener *ServerApp::openClientListener(const NetworkAddress &address)
+ Server *ServerApp::openServer(ServerConfig &config, PrimaryClient *primaryClient)
+ {
+   auto *server = new Server(config, primaryClient, m_serverComputer, getEvents());
++  if (m_controlObserver) server->setControlObserver(m_controlObserver);
+   try {
+     getEvents()->addHandler(EventTypes::ServerComputerSwitched, server, [this](const auto &) {
+       handleComputerSwitched();
+diff --git a/src/lib/deskflow/CMakeLists.txt b/src/lib/deskflow/CMakeLists.txt
+--- a/src/lib/deskflow/CMakeLists.txt
++++ b/src/lib/deskflow/CMakeLists.txt
+@@ -87,6 +87,10 @@ add_library(${lib_name} STATIC ${PLATFORM_CODE}
+   ipc/CoreIpc.h
+   ipc/CoreIpcServer.cpp
+   ipc/CoreIpcServer.h
++  control/DeskToolboxControl.cpp
++  control/DeskToolboxControl.h
++  control/UserLocalServer.cpp
++  control/UserLocalServer.h
+ )
+ 
+ target_link_libraries(${lib_name}
+diff --git a/src/apps/deskflow-core/deskflow-core.cpp b/src/apps/deskflow-core/deskflow-core.cpp
+--- a/src/apps/deskflow-core/deskflow-core.cpp
++++ b/src/apps/deskflow-core/deskflow-core.cpp
+@@ -15,6 +15,9 @@
+ #include "common/ExitCodes.h"
+ #include "deskflow/ClientApp.h"
+ #include "deskflow/ServerApp.h"
++#include "deskflow/control/DeskToolboxControl.h"
++#include <QJsonArray>
++#include <QJsonObject>
+ #include "deskflow/ipc/CoreIpcServer.h"
+ 
+ #if defined(Q_OS_WIN)
+@@ -67,6 +70,22 @@ App *createApp(const CoreArgParser &parser, EventQueue &events, const QString &p
+   return nullptr;
+ }
+ 
++namespace {
++struct DeskToolboxRequestData final : EventData {
++  QJsonObject request;
++  DeskToolboxControl::Complete complete;
++  DeskToolboxRequestData(QJsonObject value, DeskToolboxControl::Complete callback)
++      : request(std::move(value)), complete(std::move(callback)) { }
++};
++QJsonObject controlSnapshot(const Server::ControlState &state)
++{
++  QJsonArray clients;
++  for (const auto &name : state.connectedComputers) clients.append(QString::fromStdString(name));
++  return {{"activeComputer", QString::fromStdString(state.activeComputer)},
++          {"connectedComputers", clients}, {"revision", static_cast<qint64>(state.revision)}};
++}
++}
++
+ int main(int argc, char **argv)
+ {
+ #if defined(Q_OS_WIN)
+@@ -121,6 +140,36 @@ int main(int argc, char **argv)
+ 
+   App *coreApp = createApp(parser, events, processName);
+ 
++  if (parser.serverMode() && qEnvironmentVariable("DESKTOOLBOX_CONTROL") == QStringLiteral("1")) {
++    auto *serverApp = static_cast<ServerApp *>(coreApp);
++    auto *control = new DeskToolboxControl([&events, serverApp](QJsonObject request, DeskToolboxControl::Complete complete) {
++      events.addEvent(Event(EventTypes::DeskToolboxControlRequest, serverApp,
++          new DeskToolboxRequestData(std::move(request), std::move(complete))));
++    }, &app);
++    events.addHandler(EventTypes::DeskToolboxControlRequest, serverApp, [serverApp](const Event &event) {
++      const auto *data = static_cast<const DeskToolboxRequestData *>(event.getDataObject());
++      auto *server = serverApp->getServerPtr();
++      QJsonObject response{{"ok", false}, {"activeComputer", ""}, {"connectedComputers", QJsonArray{}},
++                           {"revision", 0}, {"error", "server_not_ready"}};
++      if (server) {
++        bool ok = true;
++        std::string error;
++        try {
++          if (data->request.value("action").toString() == "switch")
++            ok = server->controlSwitchTo(data->request.value("target").toString().toStdString(), error);
++        } catch (const std::exception &) { ok = false; error = "switch_failed"; }
++        response = controlSnapshot(server->controlState());
++        response.insert("ok", ok);
++        response.insert("error", QString::fromStdString(error));
++      }
++      data->complete(std::move(response));
++    });
++    serverApp->setControlObserver([control](const Server::ControlState &state, bool focusChanged) {
++      control->publish(controlSnapshot(state), focusChanged);
++    });
++    if (!control->listen()) return s_exitFailed;
++  }
++
+   const auto ipcServer = new deskflow::core::ipc::CoreIpcServer(&app); // NOSONAR - Qt managed
+   QObject::connect(
+       ipcServer, &deskflow::core::ipc::IpcServer::stopProcessRequested, coreApp, &App::quit, Qt::DirectConnection
+diff --git a/src/lib/deskflow/control/DeskToolboxControl.h b/src/lib/deskflow/control/DeskToolboxControl.h
+new file mode 100644
+--- /dev/null
++++ b/src/lib/deskflow/control/DeskToolboxControl.h
+@@ -0,0 +1,39 @@
++/*
++ * DesktopToolbox integration for Deskflow.
++ * SPDX-FileCopyrightText: (C) 2026 DesktopToolbox contributors
++ * SPDX-License-Identifier: GPL-2.0-only WITH LicenseRef-OpenSSL-Exception
++ */
++
++#pragma once
++#include "UserLocalServer.h"
++#include <QHash>
++#include <QJsonObject>
++#include <QLocalServer>
++#include <QLocalSocket>
++#include <QObject>
++#include <QSet>
++#include <functional>
++
++// Owns sockets only on the Qt thread. The submit callback marshals all state access
++// and switching onto Deskflow's native EventQueue thread, then completes asynchronously.
++class DeskToolboxControl final : public QObject
++{
++public:
++  using Complete = std::function<void(QJsonObject)>;
++  using Submit = std::function<void(QJsonObject, Complete)>;
++  explicit DeskToolboxControl(Submit submit, QObject *parent = nullptr);
++  bool listen();
++  QString endpoint() const;
++  void publish(QJsonObject snapshot, bool focusChanged);
++private:
++  static constexpr qsizetype MaxFrame = 16384;
++  struct Client { QByteArray buffer; QSet<QString> pending; };
++  void acceptClients();
++  void readClient(QLocalSocket *socket);
++  void processFrame(QLocalSocket *socket, const QByteArray &frame);
++  void write(QLocalSocket *socket, const QJsonObject &object);
++  void reject(QLocalSocket *socket, const QString &requestId, const QString &reason);
++  UserLocalServer m_server;
++  QHash<QLocalSocket *, Client> m_clients;
++  Submit m_submit;
++};
+diff --git a/src/lib/deskflow/control/DeskToolboxControl.cpp b/src/lib/deskflow/control/DeskToolboxControl.cpp
+new file mode 100644
+--- /dev/null
++++ b/src/lib/deskflow/control/DeskToolboxControl.cpp
+@@ -0,0 +1,143 @@
++/*
++ * DesktopToolbox integration for Deskflow.
++ * SPDX-FileCopyrightText: (C) 2026 DesktopToolbox contributors
++ * SPDX-License-Identifier: GPL-2.0-only WITH LicenseRef-OpenSSL-Exception
++ */
++
++#include "DeskToolboxControl.h"
++#include <QCoreApplication>
++#include <QDebug>
++#include <QJsonArray>
++#include <QJsonDocument>
++#include <QJsonParseError>
++#include <QPointer>
++#include <QRegularExpression>
++
++DeskToolboxControl::DeskToolboxControl(Submit submit, QObject *parent)
++    : QObject(parent), m_server(this), m_submit(std::move(submit))
++{
++  // Never reuse the original system-service IPC's WorldAccessOption here.
++  m_server.setSocketOptions(QLocalServer::UserAccessOption);
++  m_server.setMaxPendingConnections(8);
++  connect(&m_server, &QLocalServer::newConnection, this, [this] { acceptClients(); });
++}
++
++QString DeskToolboxControl::endpoint() const
++{
++  return QStringLiteral("nian-deskflow-control-%1").arg(QCoreApplication::applicationPid());
++}
++
++bool DeskToolboxControl::listen()
++{
++  if (qEnvironmentVariable("DESKTOOLBOX_CONTROL") != QStringLiteral("1"))
++    return false;
++  if (!m_server.listen(endpoint())) {
++    qCritical().noquote() << "DesktopToolbox control cannot listen:" << m_server.errorString();
++    return false;
++  }
++  qInfo().noquote() << "DesktopToolbox current-user control:" << endpoint();
++  return true;
++}
++
++void DeskToolboxControl::acceptClients()
++{
++  while (m_server.hasPendingConnections()) {
++    auto *socket = m_server.nextPendingConnection();
++    if (!socket) continue;
++    if (m_clients.size() >= 8) { socket->abort(); socket->deleteLater(); continue; }
++    socket->setParent(this);
++    socket->setReadBufferSize(MaxFrame + 1);
++    m_clients.insert(socket, Client{});
++    connect(socket, &QLocalSocket::readyRead, this, [this, socket] { readClient(socket); });
++    connect(socket, &QLocalSocket::disconnected, this, [this, socket] {
++      m_clients.remove(socket);
++      socket->deleteLater();
++    });
++  }
++}
++
++void DeskToolboxControl::readClient(QLocalSocket *socket)
++{
++  auto it = m_clients.find(socket);
++  if (it == m_clients.end()) return;
++  it->buffer += socket->readAll();
++  while (true) {
++    const auto newline = it->buffer.indexOf('\n');
++    if (newline < 0) {
++      if (it->buffer.size() > MaxFrame) socket->abort();
++      return;
++    }
++    if (newline > MaxFrame) { socket->abort(); return; }
++    const auto frame = it->buffer.left(newline);
++    it->buffer.remove(0, newline + 1);
++    processFrame(socket, frame);
++    it = m_clients.find(socket);
++    if (it == m_clients.end() || socket->state() != QLocalSocket::ConnectedState) return;
++  }
++}
++
++void DeskToolboxControl::write(QLocalSocket *socket, const QJsonObject &object)
++{
++  if (!m_clients.contains(socket) || socket->state() != QLocalSocket::ConnectedState) return;
++  const auto bytes = QJsonDocument(object).toJson(QJsonDocument::Compact) + '\n';
++  if (bytes.size() > MaxFrame || socket->bytesToWrite() > 4 * MaxFrame) { socket->abort(); return; }
++  socket->write(bytes);
++  socket->flush();
++}
++
++void DeskToolboxControl::reject(QLocalSocket *socket, const QString &id, const QString &reason)
++{
++  write(socket, {{"version", 1}, {"requestId", id}, {"ok", false},
++                 {"activeComputer", ""}, {"connectedComputers", QJsonArray{}},
++                 {"revision", 0}, {"error", reason}});
++}
++
++void DeskToolboxControl::processFrame(QLocalSocket *socket, const QByteArray &frame)
++{
++  QJsonParseError error;
++  const auto doc = QJsonDocument::fromJson(frame, &error);
++  if (error.error != QJsonParseError::NoError || !doc.isObject()) {
++    reject(socket, {}, "invalid_json"); return;
++  }
++  const auto request = doc.object();
++  const auto id = request.value("requestId").toString();
++  static const QRegularExpression idPattern(QStringLiteral("\\A[0-9a-fA-F]{32}\\z"));
++  if (!idPattern.match(id).hasMatch()) { reject(socket, {}, "invalid_request_id"); return; }
++  if (!request.value("version").isDouble() || request.value("version").toDouble() != 1) {
++    reject(socket, id, "unsupported_version"); return;
++  }
++  const auto action = request.value("action").toString();
++  if (action != "state" && action != "switch") { reject(socket, id, "invalid_action"); return; }
++  const auto target = request.value("target");
++  if (action == "switch" && (!target.isString() || target.toString().isEmpty() || target.toString().toUtf8().size() > 255)) {
++    reject(socket, id, "invalid_target"); return;
++  }
++  for (const auto &key : request.keys()) {
++    if (key != "version" && key != "requestId" && key != "action" && key != "target") {
++      reject(socket, id, "unknown_field"); return;
++    }
++  }
++  auto &client = m_clients[socket];
++  if (client.pending.contains(id)) { reject(socket, id, "duplicate_request_id"); return; }
++  if (client.pending.size() >= 8) { reject(socket, id, "too_many_requests"); return; }
++  client.pending.insert(id);
++  const QPointer<QLocalSocket> guard(socket);
++  m_submit(request, [this, guard, id](QJsonObject response) {
++    QMetaObject::invokeMethod(this, [this, guard, id, response = std::move(response)]() mutable {
++      if (!guard || !m_clients.contains(guard)) return;
++      m_clients[guard].pending.remove(id);
++      response.insert("version", 1);
++      response.insert("requestId", id);
++      write(guard, response);
++    }, Qt::QueuedConnection);
++  });
++}
++
++void DeskToolboxControl::publish(QJsonObject snapshot, bool focusChanged)
++{
++  QMetaObject::invokeMethod(this, [this, snapshot = std::move(snapshot), focusChanged]() mutable {
++    snapshot.insert("version", 1);
++    snapshot.insert("event", focusChanged ? "focusChanged" : "stateChanged");
++    for (auto *socket : m_clients.keys()) write(socket, snapshot);
++  }, Qt::QueuedConnection);
++}
+diff --git a/src/lib/deskflow/control/UserLocalServer.h b/src/lib/deskflow/control/UserLocalServer.h
+new file mode 100644
+--- /dev/null
++++ b/src/lib/deskflow/control/UserLocalServer.h
+@@ -0,0 +1,15 @@
++/*
++ * DesktopToolbox integration for Deskflow.
++ * SPDX-FileCopyrightText: (C) 2026 DesktopToolbox contributors
++ * SPDX-License-Identifier: GPL-2.0-only WITH LicenseRef-OpenSSL-Exception
++ */
++#pragma once
++#include <QLocalServer>
++// Qt's Unix file-permission flags alone do not restrict macOS local socket peers.
++class UserLocalServer final : public QLocalServer
++{
++public:
++  using QLocalServer::QLocalServer;
++protected:
++  void incomingConnection(quintptr descriptor) override;
++};
+diff --git a/src/lib/deskflow/control/UserLocalServer.cpp b/src/lib/deskflow/control/UserLocalServer.cpp
+new file mode 100644
+--- /dev/null
++++ b/src/lib/deskflow/control/UserLocalServer.cpp
+@@ -0,0 +1,29 @@
++/*
++ * DesktopToolbox integration for Deskflow.
++ * SPDX-FileCopyrightText: (C) 2026 DesktopToolbox contributors
++ * SPDX-License-Identifier: GPL-2.0-only WITH LicenseRef-OpenSSL-Exception
++ */
++#include "UserLocalServer.h"
++#ifdef Q_OS_UNIX
++#include <sys/socket.h>
++#include <sys/types.h>
++#include <unistd.h>
++#endif
++void UserLocalServer::incomingConnection(quintptr descriptor)
++{
++#ifdef Q_OS_UNIX
++  bool sameUser = false;
++#if defined(Q_OS_DARWIN) || defined(Q_OS_FREEBSD) || defined(Q_OS_OPENBSD) || defined(Q_OS_NETBSD)
++  uid_t uid = 0;
++  gid_t gid = 0;
++  sameUser = getpeereid(static_cast<int>(descriptor), &uid, &gid) == 0 && uid == geteuid();
++#elif defined(Q_OS_LINUX)
++  struct ucred credentials{};
++  socklen_t length = sizeof(credentials);
++  sameUser = getsockopt(static_cast<int>(descriptor), SOL_SOCKET, SO_PEERCRED, &credentials, &length) == 0 &&
++             length == sizeof(credentials) && credentials.uid == geteuid();
++#endif
++  if (!sameUser) { ::close(static_cast<int>(descriptor)); return; }
++#endif
++  QLocalServer::incomingConnection(descriptor);
++}

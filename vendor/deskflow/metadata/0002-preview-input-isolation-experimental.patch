@@ -1,0 +1,82 @@
+diff --git a/src/lib/platform/MSWindowsHook.cpp b/src/lib/platform/MSWindowsHook.cpp
+--- a/src/lib/platform/MSWindowsHook.cpp
++++ b/src/lib/platform/MSWindowsHook.cpp
+@@ -9,6 +9,7 @@
+ #include "base/DirectionTypes.h"
+ #include "base/Log.h"
+ #include "deskflow/DisplayException.h"
++#include "deskflow/control/PreviewInputIsolation.h"
+ 
+ #include <cstring>
+ #include <mutex>
+@@ -453,6 +454,9 @@
+     KBDLLHOOKSTRUCT *info = reinterpret_cast<KBDLLHOOKSTRUCT *>(lParam);
+ 
+     bool const injected = info->flags & LLKHF_INJECTED;
++    if (deskflow::preview::isTaggedPreviewInput(injected, info->dwExtraInfo)) {
++      return CallNextHookEx(g_keyboardLL, code, wParam, lParam);
++    }
+     if (!g_isPrimary && injected) {
+       return CallNextHookEx(g_keyboardLL, code, wParam, lParam);
+     }
+@@ -600,6 +604,9 @@
+     MSLLHOOKSTRUCT *info = reinterpret_cast<MSLLHOOKSTRUCT *>(lParam);
+ 
+     bool const injected = info->flags & LLMHF_INJECTED;
++    if (deskflow::preview::isTaggedPreviewInput(injected, info->dwExtraInfo)) {
++      return CallNextHookEx(g_mouseLL, code, wParam, lParam);
++    }
+     if (!g_isPrimary && injected) {
+       return CallNextHookEx(g_mouseLL, code, wParam, lParam);
+     }
+diff --git a/src/lib/deskflow/control/DeskToolboxControl.cpp b/src/lib/deskflow/control/DeskToolboxControl.cpp
+--- a/src/lib/deskflow/control/DeskToolboxControl.cpp
++++ b/src/lib/deskflow/control/DeskToolboxControl.cpp
+@@ -5,6 +5,7 @@
+  */
+ 
+ #include "DeskToolboxControl.h"
++#include "PreviewInputIsolation.h"
+ #include <QCoreApplication>
+ #include <QDebug>
+ #include <QJsonArray>
+@@ -79,7 +80,9 @@
+ void DeskToolboxControl::write(QLocalSocket *socket, const QJsonObject &object)
+ {
+   if (!m_clients.contains(socket) || socket->state() != QLocalSocket::ConnectedState) return;
+-  const auto bytes = QJsonDocument(object).toJson(QJsonDocument::Compact) + '\n';
++  auto frame = object;
++  frame.insert("previewInputIsolated", deskflow::preview::inputIsolated());
++  const auto bytes = QJsonDocument(frame).toJson(QJsonDocument::Compact) + '\n';
+   if (bytes.size() > MaxFrame || socket->bytesToWrite() > 4 * MaxFrame) { socket->abort(); return; }
+   socket->write(bytes);
+   socket->flush();
+diff --git a/src/lib/deskflow/control/PreviewInputIsolation.h b/src/lib/deskflow/control/PreviewInputIsolation.h
+new file mode 100644
+--- /dev/null
++++ b/src/lib/deskflow/control/PreviewInputIsolation.h
+@@ -0,0 +1,24 @@
++/*
++ * DesktopToolbox preview input isolation for Deskflow.
++ * SPDX-FileCopyrightText: (C) 2026 DesktopToolbox contributors
++ * SPDX-License-Identifier: GPL-2.0-only WITH LicenseRef-OpenSSL-Exception
++ */
++
++#pragma once
++#include <cstdint>
++
++namespace deskflow::preview {
++inline constexpr std::uintptr_t EventMarker = 0x4e505256u; // NPRV, also valid on Win32.
++inline constexpr bool isTaggedPreviewInput(bool injected, std::uintptr_t extraInfo)
++{
++  return injected && extraInfo == EventMarker;
++}
++inline constexpr bool inputIsolated()
++{
++#ifdef _WIN32
++  return true;
++#else
++  return false;
++#endif
++}
++} // namespace deskflow::preview

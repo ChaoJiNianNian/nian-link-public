@@ -1,0 +1,147 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows</TargetFramework><UseWPF>true</UseWPF>
+    <IsPackable>false</IsPackable><IsTestProject>true</IsTestProject>
+    <Nullable>enable</Nullable><ImplicitUsings>enable</ImplicitUsings><LangVersion>latest</LangVersion>
+    <DefineConstants>$(DefineConstants);ISOLATED_SOCKET_CONFIGURATION_TEST;ISOLATED_CANDIDATE_SYNTHETIC_TEST</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- Freeze the historical experiment's source boundary: new product partials must not enter it implicitly.
+         Some current sources and the reconstructed Historical/SecurePairingPeer.cs are compatibility inputs;
+         this hybrid test assembly is not a reconstruction of the original product or its complete source. -->
+    <Compile Include="../../src/DesktopToolbox.DeskLink/Collaboration/AssemblyInfo.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/Collaboration/CollaborationClient.LivePreview.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/Collaboration/CollaborationClient.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/Collaboration/CollaborationExchange.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/Collaboration/CollaborationImageBounds.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/Collaboration/CollaborationPaths.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/Collaboration/CollaborationProtocol.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/Collaboration/CollaborationServer.LivePreview.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/Collaboration/CollaborationServer.ReverseShareTest.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/Collaboration/CollaborationServer.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/Collaboration/Contracts.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/Collaboration/LivePreview/LatestFrameMailbox.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/Collaboration/LivePreview/LivePreviewCaptureContracts.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/Collaboration/LivePreview/LivePreviewClient.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/Collaboration/LivePreview/LivePreviewDuplex.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/Collaboration/LivePreview/LivePreviewFrameProtocol.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/Collaboration/LivePreview/LivePreviewFrameValidation.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/Collaboration/LivePreview/LivePreviewOutboundMailbox.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/Collaboration/LivePreview/LivePreviewServer.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/Collaboration/LivePreview/LivePreviewTransportContracts.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/Collaboration/LivePreview/LivePreviewUploadController.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/Collaboration/MultiPeerCollaborationClient.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/Collaboration/MultiPeerCollaborationEndpoint.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/Collaboration/MultiPeerSettingsStore.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/Collaboration/MultiScreenDisplayWorker.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/Collaboration/PreparedTransfer.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/Collaboration/PreviewCaptureCadence.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/Collaboration/PreviewCaptureIdentity.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/Collaboration/ReverseShareQueue.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/Collaboration/SharedCatalog.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/Collaboration/SharedImageBounds.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/Collaboration/TransferReceiver.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/Contracts.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/Coordination/DeskflowPreviewAdmissionPolicy.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/Coordination/MultiPeerDisplayCommandGuard.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/Coordination/MultiPeerDisplayExecutor.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/Coordination/MultiPeerDisplayIntentGuard.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/Coordination/MultiPeerDisplayQueue.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/Coordination/MultiPeerDisplayRoutePlanner.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/Coordination/MultiPeerDisplayState.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/Coordination/MultiPeerMonitorGroup.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/Coordination/MultiPeerPreviewManager.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/Coordination/MultiScreenConfiguration.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/Coordination/MultiScreenDeviceRouter.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/Coordination/MultiScreenDisplayCoordinator.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/Coordination/MultiScreenDisplayState.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/Coordination/MultiScreenTopology.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/Coordination/UnifiedSwitchCoordinator.Preview.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/Coordination/UnifiedSwitchCoordinator.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/DeskLinkPairingBundle.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/DeskflowCoreIpcClient.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/DeskflowIpcState.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/DeskflowOwnedProcess.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/DeskflowPreviewControl.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/DeskflowProfile.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/DeskflowSession.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/DeviceAliases.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/DiscoveryAnnouncement.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/DiscoveryCandidateCache.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/DiscoveryInterfacePin.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/DiscoveryNetworkBinding.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/DiscoveryProtocolSessions.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/DiscoveryQuery.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/DiscoveryResponderState.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/DiscoveryReviewLease.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/DiscoveryScanState.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/DiscoverySessionRunner.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/DiscoverySubnet.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/DiscoveryUdpSocket.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/JsonLineProtocol.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/LocalControlTransport.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/LocalDeviceName.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/Mini/MiniCollaborationContracts.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/Mini/MultiDeviceMiniService.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/Mini/PeerMiniService.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/Mini/PeerMiniState.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/MultiDeviceCredentialVault.Snapshots.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/MultiDeviceCredentials.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/MultiPeerClientOnboarding.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/MultiPeerClipboardTarget.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/MultiPeerControlClient.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/MultiPeerControlServer.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/MultiPeerInvitation.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/MultiPeerKeyboardSession.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/MultiPeerNativeSwitch.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/MultiPeerPairingCoordinator.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/MultiPeerRuntime.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/MultiPeerTrustChangeCoordinator.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/NativeControlClient.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/NativePeerBindings.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/PairedControlClient.Preview.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/PairedControlClient.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/PairedControlServer.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/PairingAuthenticatedChannel.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/PairingConsentState.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/PairingDiscoveryNotice.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/PairingNoticeInbox.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/PairingTlsConsentSession.Delivery.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/PairingTlsConsentSession.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/PeerIdentityOffer.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/Preview/DeskflowPreviewPresentation.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/Preview/DeskflowPreviewSession.Lifecycle.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/Preview/DeskflowPreviewSession.Live.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/Preview/DeskflowPreviewSession.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/Preview/IControlLivePreviewSource.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/Preview/LivePreviewPresenter.Worker.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/Preview/LivePreviewPresenter.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/Preview/RemoteSubscriptionControlLivePreviewSource.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/Preview/RemoteUploadControlLivePreviewSource.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/PrivateFiles.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/VerifiedLanBinding.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/WindowsHardwareInterface.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/WindowsPeerLink.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/WindowsPeerProfile.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/DesktopToolbox.DeskLink/PairingStartupCleanupException.cs" LinkBase="ProductSource" />
+    <Compile Include="../../src/NianLink.Windows/WindowsCredentialProtector.cs" Link="WindowsCredentialProtector.cs" />
+    <Compile Include="../PrivateUdpProbe/ProbeRules.cs" Link="ProbeRules.cs" />
+    <Compile Include="../PrivateUdpProbe/ProbeChildCleanup.cs" Link="ProbeChildCleanup.cs" />
+    <Compile Include="../PrivateUdpProbe/ProbeParentIdentity.cs" Link="ProbeParentIdentity.cs" />
+    <Compile Include="../PrivateUdpProbe/ProbeEnvironment.cs" Link="ProbeEnvironment.cs" />
+    <Compile Include="../../src/NianLink.CandidateDiscovery/CandidateDiscoverySessions.cs" Link="CandidateDiscoverySessions.cs" />
+    <Compile Include="../../src/NianLink.CandidateDiscovery/CandidateDiscoveryRun.cs" Link="CandidateDiscoveryRun.cs" />
+    <Compile Include="../../src/NianLink.CandidateDiscovery/HostPairingNoticeFactory.cs" Link="HostPairingNoticeFactory.cs" />
+    <Compile Include="../../src/NianLink.CandidateDiscovery/WindowsDiscoveryDatagramSocket.cs" Link="WindowsDiscoveryDatagramSocket.cs" />
+    <Compile Include="../../src/NianLink.CandidateDiscovery/WindowsPairingNetworkHandoff.cs" Link="WindowsPairingNetworkHandoff.cs" />
+    <Compile Include="../../src/NianLink.CandidateDiscovery/CandidateSyntheticRules.cs" Link="CandidateSyntheticRules.cs" />
+    <Compile Include="../CandidateSocketProbe/ProbeExecutionPolicy.cs" Link="ProbeExecutionPolicy.cs" />
+    <Compile Include="../MultiPeerTrust.Tests/PairingReviewLifecycleTests.cs" Link="PairingReviewLifecycleTests.cs" />
+    <ProjectReference Include="../../src/Nian.Input.Control/Nian.Input.Control.csproj" />
+    <ProjectReference Include="../../src/Nian.Input.Security/Nian.Input.Security.csproj" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.1"><PrivateAssets>all</PrivateAssets></PackageReference>
+    <Using Include="Xunit" /><Using Include="System.IO" />
+  </ItemGroup>
+</Project>

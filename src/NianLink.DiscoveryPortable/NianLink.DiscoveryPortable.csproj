@@ -1,0 +1,57 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
+    <UseWPF>true</UseWPF><UseWindowsForms>true</UseWindowsForms>
+    <Nullable>enable</Nullable><ImplicitUsings>disable</ImplicitUsings>
+    <SupportedOSPlatformVersion>10.0.19041.0</SupportedOSPlatformVersion>
+    <ApplicationIcon>../../assets/brand/NianLink.ico</ApplicationIcon>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <EnableDefaultPageItems>false</EnableDefaultPageItems>
+    <EnableDefaultApplicationDefinition>false</EnableDefaultApplicationDefinition>
+    <DefineConstants>$(DefineConstants);DISCOVERY_PORTABLE;NIAN_MULTIDEVICE_UI</DefineConstants>
+    <DefineConstants Condition="'$(NianFilelessPairingCandidate)' == 'true'">$(DefineConstants);FILELESS_PAIRING_CANDIDATE</DefineConstants>
+    <DefineConstants Condition="'$(NianFilelessPairingCandidate)' == 'true' And '$(NianFilelessPairingIsolatedTest)' == 'true' And '$(NianPairingDiagnostics)' == 'true'">$(DefineConstants);FILELESS_PAIRING_DIAGNOSTICS</DefineConstants>
+    <DefineConstants Condition="'$(NianPeerEmergencyResearch)' == 'true'">$(DefineConstants);NIAN_PEER_EMERGENCY_RESEARCH</DefineConstants>
+  </PropertyGroup>
+  <Target Name="RequireIsolatedEmergencyResearchOutput" BeforeTargets="PrepareForBuild" Condition="'$(NianPeerEmergencyResearch)' == 'true'">
+    <Error Condition="'$(UseArtifactsOutput)' != 'true' Or '$(ArtifactsPath)' == ''" Text="Emergency research requires a separate artifacts output directory." />
+    <PropertyGroup><EmergencyResearchAbsolute>$([System.IO.Path]::GetFullPath('$(ArtifactsPath)'))</EmergencyResearchAbsolute><EmergencyResearchRoot>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)../../tests/.work/'))</EmergencyResearchRoot></PropertyGroup>
+    <Error Condition="!$([System.String]::Copy('$(EmergencyResearchAbsolute)').StartsWith('$(EmergencyResearchRoot)', System.StringComparison.OrdinalIgnoreCase))" Text="Emergency research artifacts must be below tests/.work." />
+  </Target>
+  <ItemGroup Condition="'$(NianFilelessPairingCandidate)' == 'true' And '$(NianFilelessPairingIsolatedTest)' == 'true'"><AssemblyMetadata Include="NianFilelessPairingCandidate" Value="true" /></ItemGroup>
+  <ItemGroup Condition="'$(NianFilelessPairingCandidate)' == 'true' And '$(NianFilelessPairingIsolatedTest)' == 'true' And '$(NianPairingDiagnostics)' == 'true'"><AssemblyMetadata Include="NianPairingDiagnostics" Value="true" /></ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../DesktopToolbox.DeskLink/DesktopToolbox.DeskLink.csproj" />
+    <ProjectReference Include="../NianLink.CandidateDiscovery/NianLink.CandidateDiscovery.csproj" />
+    <ProjectReference Include="../DesktopToolbox.Windows/DesktopToolbox.Windows.csproj" />
+    <ProjectReference Include="../DesktopToolbox.DisplayBridge/DesktopToolbox.DisplayBridge.csproj" ReferenceOutputAssembly="false" />
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.4258.31" />
+    <ApplicationDefinition Include="../NianLink.MultiDevice/App.xaml" Link="App.xaml" />
+    <Page Include="../NianLink.MultiDevice/MainWindow.xaml" Link="MainWindow.xaml" />
+    <Page Include="../NianLink.MultiDevice/SettingsVisuals.xaml" Link="SettingsVisuals.xaml" />
+    <Page Include="../NianLink.MultiDevice/SettingsScrollBars.xaml" Link="SettingsScrollBars.xaml" />
+    <Compile Include="../NianLink.MultiDevice/*.cs" Link="%(Filename)%(Extension)" />
+    <Compile Include="../NianLink.MultiDevice.Shared/PeerControlOwner.cs" Link="PeerControlOwner.cs" />
+    <Compile Include="../NianLink.Windows/WindowsCredentialProtector.cs" Link="WindowsCredentialProtector.cs" />
+    <Compile Include="../NianLink.Windows/DisplayInputSelection.cs" Link="DisplayInputSelection.cs" />
+    <Compile Include="../DesktopToolbox.App/Hosting/NativePrompts.cs" Link="Hosting/NativePrompts.cs" />
+    <Compile Include="../DesktopToolbox.App/DeskLink/DetachedPreviewWindow.cs" Link="Preview/DetachedPreviewWindow.cs" />
+    <Compile Include="../DesktopToolbox.App/DeskLink/DetachedPreviewWindow.Input.cs" Link="Preview/DetachedPreviewWindow.Input.cs" />
+    <Compile Include="../DesktopToolbox.App/DeskLink/DetachedPreviewWindow.LivePreview.cs" Link="Preview/DetachedPreviewWindow.LivePreview.cs" />
+    <Compile Include="../DesktopToolbox.App/DeskLink/WpfLivePreviewDecoder.cs" Link="Preview/WpfLivePreviewDecoder.cs" />
+    <Compile Include="../DesktopToolbox.App/DeskLink/Mini*.cs" Link="Mini/%(Filename)%(Extension)" />
+    <Compile Include="../DesktopToolbox.App/DeskLink/MultiRecipientBarrier.cs" Link="Mini/MultiRecipientBarrier.cs" />
+    <Compile Include="../DesktopToolbox.App/Drawer/DrawerWindowPolicy.cs" Link="Mini/DrawerWindowPolicy.cs" />
+    <Compile Include="../DesktopToolbox.App/Drawer/DrawerDesktopEnvironment.cs" Link="Mini/DrawerDesktopEnvironment.cs" />
+    <Compile Include="../NianLink.Windows/NativeMaterial.cs" Link="Mini/NativeMaterial.cs" />
+    <Resource Include="../../assets/brand/NianLinkBrand.png" Link="Assets/NianLinkBrand.png" />
+    <Content Include="../DesktopToolbox.Collaboration.Ui/**/*" Link="CollaborationUi/%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <Content Include="../NianLink.MultiDevice/mini-windows.css" Link="CollaborationUi/mini-windows.css" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+  <Target Name="CopyDisplayBridge" AfterTargets="Build">
+    <PropertyGroup><NianDisplayBridgeOutputDirectory Condition="'$(NianDisplayBridgeOutputDirectory)' == ''">../DesktopToolbox.DisplayBridge/bin/$(Configuration)/$(TargetFramework)/$(RuntimeIdentifier)</NianDisplayBridgeOutputDirectory></PropertyGroup>
+    <ItemGroup><DisplayBridgeFiles Include="$(NianDisplayBridgeOutputDirectory)/DisplayBridge.exe;$(NianDisplayBridgeOutputDirectory)/DisplayBridge.dll;$(NianDisplayBridgeOutputDirectory)/DisplayBridge.deps.json;$(NianDisplayBridgeOutputDirectory)/DisplayBridge.runtimeconfig.json" /></ItemGroup>
+    <Copy SourceFiles="@(DisplayBridgeFiles)" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true" />
+  </Target>
+</Project>

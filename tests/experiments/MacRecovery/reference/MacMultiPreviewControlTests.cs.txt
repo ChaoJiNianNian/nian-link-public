@@ -1,0 +1,172 @@
+using DesktopToolbox.DeskLink;
+using DesktopToolbox.Mac.Services;
+
+namespace DesktopToolbox.Mac.Tests;
+
+public sealed partial class MacCollaborationIntegrationTests
+{
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task RevokedPreviewWaitsForLateHandoffAndConfirmedReturn(bool renew)
+    {
+        await using var harness = await BoundaryHarness.OpenAsync();
+        var lease = Assert.IsType<MacMultiPeerClient.CollaborationLease>(await harness.Owner.GetCollaborationLeaseAsync());
+        var backend = new BlockingPreview();
+        var control = CreateGuarded(lease, backend);
+        var handoff = renew ? control.RenewPreviewAsync("preview-id") : control.BeginPreviewAsync();
+        await backend.Started.Task.WaitAsync(TimeSpan.FromSeconds(10));
+        var drain = lease.Suspend();
+        try
+        {
+            Assert.True(backend.HandoffToken.IsCancellationRequested);
+            Assert.False(drain.IsCompleted);
+            backend.Handoff.SetResult(new DeskflowPreviewState { Id = "preview-id", Phase = DeskflowPreviewPhase.Active });
+            await backend.EndStarted.Task.WaitAsync(TimeSpan.FromSeconds(10));
+            Assert.False(drain.IsCompleted);
+            Assert.Equal("preview-id", backend.EndId);
+            backend.EndResult.SetResult(new DeskflowPreviewState { Phase = DeskflowPreviewPhase.Viewing });
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(() => handoff);
+            await drain.WaitAsync(TimeSpan.FromSeconds(10));
+        }
+        finally
+        {
+            backend.Handoff.TrySetResult(new DeskflowPreviewState { Id = "preview-id", Phase = DeskflowPreviewPhase.Active });
+            backend.EndResult.TrySetResult(new DeskflowPreviewState { Phase = DeskflowPreviewPhase.Viewing });
+            try { await handoff.WaitAsync(TimeSpan.FromSeconds(10)); } catch (Exception) { }
+        }
+    }
+
+    [Fact]
+    public async Task SuccessfulHandoffRemainsOwnedAndConcurrentReturnsAreSingleFlight()
+    {
+        await using var harness = await BoundaryHarness.OpenAsync();
+        var lease = Assert.IsType<MacMultiPeerClient.CollaborationLease>(await harness.Owner.GetCollaborationLeaseAsync());
+        var backend = new BlockingPreview();
+        var control = CreateGuarded(lease, backend);
+        var handoff = control.BeginPreviewAsync();
+        await backend.Started.Task.WaitAsync(TimeSpan.FromSeconds(10));
+        backend.Handoff.SetResult(new DeskflowPreviewState { Id = "preview-id", Phase = DeskflowPreviewPhase.Active });
+        Assert.True((await handoff).IsActive);
+        var drain = lease.Suspend();
+        try
+        {
+            await backend.EndStarted.Task.WaitAsync(TimeSpan.FromSeconds(10));
+            var explicitReturn = control.EndPreviewAsync("preview-id");
+            Assert.False(drain.IsCompleted);
+            Assert.Equal(1, backend.EndCount);
+            backend.EndResult.SetResult(new DeskflowPreviewState { Phase = DeskflowPreviewPhase.Viewing });
+            Assert.False((await explicitReturn).HasSession);
+            await drain.WaitAsync(TimeSpan.FromSeconds(10));
+        }
+        finally
+        {
+            backend.EndResult.TrySetResult(new DeskflowPreviewState { Phase = DeskflowPreviewPhase.Viewing });
+        }
+    }
+
+    [Fact]
+    public async Task ExplicitRecoveryFindsUnknownSessionReturnsItAndConfirmsViewing()
+    {
+        await using var harness = await BoundaryHarness.OpenAsync();
+        var lease = Assert.IsType<MacMultiPeerClient.CollaborationLease>(await harness.Owner.GetCollaborationLeaseAsync());
+        var backend = new BlockingPreview();
+        var control = CreateGuarded(lease, backend);
+        var handoff = control.BeginPreviewAsync();
+        await backend.Started.Task.WaitAsync(TimeSpan.FromSeconds(10));
+        var drain = lease.Suspend();
+        backend.Handoff.SetException(new IOException("synthetic response lost"));
+        await Assert.ThrowsAsync<IOException>(() => handoff);
+        Assert.False(drain.IsCompleted);
+        backend.ReadResults.Enqueue(new DeskflowPreviewState { Id = "unknown-id", Phase = DeskflowPreviewPhase.Active });
+        backend.ReadResults.Enqueue(new DeskflowPreviewState { Phase = DeskflowPreviewPhase.Viewing });
+        backend.NextEndResult = new DeskflowPreviewState { Phase = DeskflowPreviewPhase.Viewing };
+        var recover = control.GetType().GetMethod("RecoverReturnAsync");
+        Assert.NotNull(recover);
+        var task = Assert.IsAssignableFrom<Task<DeskflowPreviewState>>(recover.Invoke(control, [CancellationToken.None]));
+        Assert.Equal(DeskflowPreviewPhase.Viewing, (await task).Phase);
+        Assert.Equal("unknown-id", backend.EndId);
+        await drain.WaitAsync(TimeSpan.FromSeconds(10));
+    }
+
+    [Fact]
+    public async Task FailedBeginCannotDrainUntilReadProvesNoActiveSession()
+    {
+        await using var harness = await BoundaryHarness.OpenAsync();
+        var lease = Assert.IsType<MacMultiPeerClient.CollaborationLease>(await harness.Owner.GetCollaborationLeaseAsync());
+        var backend = new BlockingPreview();
+        var control = CreateGuarded(lease, backend);
+        var handoff = control.BeginPreviewAsync();
+        await backend.Started.Task.WaitAsync(TimeSpan.FromSeconds(10));
+        var drain = lease.Suspend();
+        backend.Handoff.SetException(new IOException("synthetic response lost"));
+        await Assert.ThrowsAsync<IOException>(() => handoff);
+        Assert.False(drain.IsCompleted);
+        var state = await control.ReadPreviewAsync();
+        Assert.Equal(DeskflowPreviewPhase.Viewing, state.Phase);
+        await drain.WaitAsync(TimeSpan.FromSeconds(10));
+    }
+
+    [Fact]
+    public async Task FailedLateReturnKeepsDrainBlockedUntilExplicitEndConfirmsReturn()
+    {
+        await using var harness = await BoundaryHarness.OpenAsync();
+        var lease = Assert.IsType<MacMultiPeerClient.CollaborationLease>(await harness.Owner.GetCollaborationLeaseAsync());
+        var backend = new BlockingPreview();
+        var control = CreateGuarded(lease, backend);
+        var handoff = control.BeginPreviewAsync();
+        await backend.Started.Task.WaitAsync(TimeSpan.FromSeconds(10));
+        var drain = lease.Suspend();
+        try
+        {
+            backend.Handoff.SetResult(new DeskflowPreviewState { Id = "preview-id", Phase = DeskflowPreviewPhase.Active });
+            await backend.EndStarted.Task.WaitAsync(TimeSpan.FromSeconds(10));
+            backend.EndResult.SetResult(new DeskflowPreviewState { Id = "preview-id", Phase = DeskflowPreviewPhase.Recovery });
+            await Assert.ThrowsAsync<InvalidOperationException>(() => handoff);
+            Assert.False(drain.IsCompleted);
+            backend.NextEndResult = new DeskflowPreviewState { Phase = DeskflowPreviewPhase.Viewing };
+            var result = await control.EndPreviewAsync("preview-id");
+            Assert.False(result.HasSession);
+            await drain.WaitAsync(TimeSpan.FromSeconds(10));
+        }
+        finally
+        {
+            backend.Handoff.TrySetResult(new DeskflowPreviewState { Id = "preview-id", Phase = DeskflowPreviewPhase.Active });
+            backend.EndResult.TrySetResult(new DeskflowPreviewState { Phase = DeskflowPreviewPhase.Viewing });
+            backend.NextEndResult = new DeskflowPreviewState { Phase = DeskflowPreviewPhase.Viewing };
+            try { await control.EndPreviewAsync("preview-id"); } catch (Exception) { }
+            try { await handoff.WaitAsync(TimeSpan.FromSeconds(10)); } catch (Exception) { }
+        }
+    }
+
+    private static IDeskflowPreviewControl CreateGuarded(MacMultiPeerClient.CollaborationLease lease, IDeskflowPreviewControl backend)
+    {
+        var type = typeof(MacMultiPeerClient).Assembly.GetType("DesktopToolbox.Mac.Services.MacMultiPreviewControl");
+        Assert.NotNull(type);
+        return Assert.IsAssignableFrom<IDeskflowPreviewControl>(Activator.CreateInstance(type, lease, backend));
+    }
+
+    private sealed class BlockingPreview : IDeskflowPreviewControl
+    {
+        public bool PreviewHandoffSupported => true;
+        public string PreviewReturnShortcut => "return";
+        public string PreviewHandoffHint => "test";
+        public TaskCompletionSource Started { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        public TaskCompletionSource<DeskflowPreviewState> Handoff { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        public TaskCompletionSource EndStarted { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        public TaskCompletionSource<DeskflowPreviewState> EndResult { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        public DeskflowPreviewState? NextEndResult { get; set; }
+        public CancellationToken HandoffToken { get; private set; }
+        public string? EndId { get; private set; }
+        public int EndCount;
+        public Queue<DeskflowPreviewState> ReadResults { get; } = new();
+        private Task<DeskflowPreviewState> Start(CancellationToken token)
+        { HandoffToken = token; Started.TrySetResult(); return Handoff.Task; }
+        public Task<DeskflowPreviewState> BeginPreviewAsync(CancellationToken token = default) => Start(token);
+        public Task<DeskflowPreviewState> RenewPreviewAsync(string id, CancellationToken token = default) => Start(token);
+        public Task<DeskflowPreviewState> EndPreviewAsync(string id, CancellationToken token = default)
+        { Interlocked.Increment(ref EndCount); EndId = id; EndStarted.TrySetResult(); return NextEndResult is { } result ? Task.FromResult(result) : EndResult.Task; }
+        public Task<DeskflowPreviewState> ReadPreviewAsync(CancellationToken token = default) =>
+            Task.FromResult(ReadResults.Count > 0 ? ReadResults.Dequeue() : new DeskflowPreviewState { Phase = DeskflowPreviewPhase.Viewing });
+    }
+}

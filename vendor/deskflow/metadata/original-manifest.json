@@ -1,0 +1,313 @@
+{
+  "version": "1.27.0",
+  "files": [
+    {
+      "path": "concrt140.dll",
+      "sha256": "2405355f0a58067b258f8df33c327e3a3d716eaac5a3a5aebb757842d85bd376"
+    },
+    {
+      "path": "deskflow-core.exe",
+      "sha256": "8e533ece67eeebe70469abc9580b683960e260102cc3997d1b5a16a49c380951"
+    },
+    {
+      "path": "deskflow.exe",
+      "sha256": "21621dd966e7862774c2e2dc274f78788c327affe5004c7a495828b17d43865a"
+    },
+    {
+      "path": "docs/Configuration.md",
+      "sha256": "97e6dd3f347ae28110f1152c9547efa870707f03a26e48be547adc4afdb66ef7"
+    },
+    {
+      "path": "docs/HelpMain.md",
+      "sha256": "95f59c5b95413b6e7c6f051a49ff37428084d78f0f489e5a80c451354d9dc10b"
+    },
+    {
+      "path": "docs/Issues.md",
+      "sha256": "75b75d036aa245d1f6060494a7290c8ffe9b384a121b723884b7f7e996e0baee"
+    },
+    {
+      "path": "docs/Readme.md",
+      "sha256": "04901f0af47e48774aa4f130d5e73d2b4bc1498e8270e10a21d69b631450741b"
+    },
+    {
+      "path": "docs/Security.md",
+      "sha256": "b29ab58f6b51105b198421087ff27c511ddd89c683029430b4a42fb595aeed9e"
+    },
+    {
+      "path": "libcrypto-3-x64.dll",
+      "sha256": "92f6aac668fd2d5c26fad0ca944b65c972620f54dc183c301fb7959d0cb1f3d2"
+    },
+    {
+      "path": "libssl-3-x64.dll",
+      "sha256": "c2f74b20f57ec80130d42e23b2cdbedf4547c5b0480c36ecc074aae8d0101baf"
+    },
+    {
+      "path": "LICENSE",
+      "sha256": "d8c320ffc0030d1b096ae4732b50d2b811cf95e9a9b7377c1127b2563e0a0388"
+    },
+    {
+      "path": "LICENSE_EXCEPTION",
+      "sha256": "ee89f0560ee2e5ca5dee782611ec18e9bd472d1372b0631dd0537023ae9bf3a9"
+    },
+    {
+      "path": "msvcp140.dll",
+      "sha256": "0f885b509a685d2bbfa652fed26b5fb31d88fbdab0a978c641d1c7b8aa460aa9"
+    },
+    {
+      "path": "msvcp140_1.dll",
+      "sha256": "bfad5aef4c63a669e3c140655cdfdf395b6c979b400a447bd5dcb65ed8826c3d"
+    },
+    {
+      "path": "msvcp140_2.dll",
+      "sha256": "3ea06f0ee098b4823cb79599df3780e7f23cce52c19aac31d2a0d47efe33a5e9"
+    },
+    {
+      "path": "msvcp140_atomic_wait.dll",
+      "sha256": "640b2aefced484d0368eea5bdd06addd0658a3a70a49256e560d6923b404a479"
+    },
+    {
+      "path": "msvcp140_codecvt_ids.dll",
+      "sha256": "f2069a52880ec885ee7f0511186100eb7fada0411a2b4948fafea7735b878a18"
+    },
+    {
+      "path": "plugins/generic/qtuiotouchplugin.dll",
+      "sha256": "91b2aa1161c24f8eaaf13346a9fec7ea795e80d2c999bb940fe914e37fa0e4f1"
+    },
+    {
+      "path": "plugins/iconengines/qsvgicon.dll",
+      "sha256": "c5d7ed7942069c656b2bca01a6c958e61dd7385998ad70af9a215d31a070d511"
+    },
+    {
+      "path": "plugins/imageformats/qgif.dll",
+      "sha256": "ab27920999dbe30c8b49ebdaefcc4740f931afc23f137ee9c77822d9069c4e59"
+    },
+    {
+      "path": "plugins/imageformats/qico.dll",
+      "sha256": "9cb3025a26c2e5a6225b601ca89c62bfa4dffc17f258cc10d439b1c3ac6d6256"
+    },
+    {
+      "path": "plugins/imageformats/qjpeg.dll",
+      "sha256": "efa72d5df5eafac48021b2e7ab501668989944b1fd84e902e21f17ddeac4bdfb"
+    },
+    {
+      "path": "plugins/imageformats/qsvg.dll",
+      "sha256": "57292a5bac79d01b7c55240e06cf6e4796f6efe63edc825d644232db9e124187"
+    },
+    {
+      "path": "plugins/networkinformation/qnetworklistmanager.dll",
+      "sha256": "e838e8a4349a35f99f1a7ff7fb15c89e2697a6a4be857fe06fde222c3c810fae"
+    },
+    {
+      "path": "plugins/platforms/qwindows.dll",
+      "sha256": "e8c633f1c5054ec2972ea5dd85062d1078a6b1011cbeb3dd1fb6ed954da78765"
+    },
+    {
+      "path": "plugins/styles/qmodernwindowsstyle.dll",
+      "sha256": "180d8c0b5cdce42ebaf26cd96f2582200784cde069dac487534e755eb6b581fb"
+    },
+    {
+      "path": "plugins/tls/qcertonlybackend.dll",
+      "sha256": "14f6c3dc09935b539371a2f88d05ac0c6cb06d64efbaa4db28ad8019cb3a1203"
+    },
+    {
+      "path": "plugins/tls/qschannelbackend.dll",
+      "sha256": "2460a9525f2673342f073e144affbecda505f34b9ddb130dd489496900944237"
+    },
+    {
+      "path": "Qt6Core.dll",
+      "sha256": "b20757be279b4e074c89be1f183a40975bf867b9a2a4e0ca4ea34a95fe2bb39e"
+    },
+    {
+      "path": "Qt6Gui.dll",
+      "sha256": "695ee5e5a7ac83b7a1f7d397ccb0dda39b84f8369fd2237d90c1229b78af0cd5"
+    },
+    {
+      "path": "Qt6Network.dll",
+      "sha256": "ced0ea6ee03079a03ec19d1bdc4da5c1bf607cefa09f4f526768f54a4c0db8af"
+    },
+    {
+      "path": "Qt6Svg.dll",
+      "sha256": "bc77f4dd32a07518b61930a0d6ef1d5ff81436afd77886da239822dbf8c49e7a"
+    },
+    {
+      "path": "Qt6Widgets.dll",
+      "sha256": "16e181e86e4084ca26de4daaf9a32ab61c1eed9c4649e6176dbddc7849ea1e06"
+    },
+    {
+      "path": "README.txt",
+      "sha256": "cb02c7e1e852c41df2601ee4049e722ed2081b86ff05176c84faac1a4ed5431b"
+    },
+    {
+      "path": "settings/Deskflow.conf",
+      "sha256": "36a9e7f1c95b82ffb99743e0c5c4ce95d83c9a430aac59f84ef3cbfab6145068"
+    },
+    {
+      "path": "translations/deskflow_en.qm",
+      "sha256": "7178711d53345e1c8012b384d94f3319845af407f2c17d704427aebbdfb323b7"
+    },
+    {
+      "path": "translations/deskflow_es.qm",
+      "sha256": "1f96f934ae6bfbef0213bda1de08112d48e07dca50ad5acedcb79e3f22278047"
+    },
+    {
+      "path": "translations/deskflow_it.qm",
+      "sha256": "b769fb7f998dfb6155a1c77d58d4035b3fb82313c7998efe454aa819f4da7ab1"
+    },
+    {
+      "path": "translations/deskflow_ja.qm",
+      "sha256": "03f47fc20d37aef82d921375fba9c75d54c57cb098ff502ca270dadf50ad1e65"
+    },
+    {
+      "path": "translations/deskflow_ko.qm",
+      "sha256": "fc8eb2f7c2fc207e0cc42a31e3c5ebbe3dc78c7e623e5c11f8a1440636d2571e"
+    },
+    {
+      "path": "translations/deskflow_ru.qm",
+      "sha256": "e39764c5720ab1096344d65dc5345439c67786458e58fe9a461304667be4f2e0"
+    },
+    {
+      "path": "translations/deskflow_zh_CN.qm",
+      "sha256": "387d87facce0fcd22bc2025809fe6e812d764bab32ab8109c97174e15d27ad28"
+    },
+    {
+      "path": "translations/qt_ar.qm",
+      "sha256": "e03fe68d83201543698fd7fe267dd5dfc5bfd195147e74ff2f19ac3491401263"
+    },
+    {
+      "path": "translations/qt_bg.qm",
+      "sha256": "e448ac9e3f16c29eb27af3012efe21052daa78fabfb34cd6dff2f69ee3bd3cdb"
+    },
+    {
+      "path": "translations/qt_ca.qm",
+      "sha256": "2bfde1115d89ad3a38280b569e5fe5f5f0fd77fa101dca4fc1be2ebf309d9b2c"
+    },
+    {
+      "path": "translations/qt_cs.qm",
+      "sha256": "03028b42df5479270371e4c3bdc7df2f56cbbe6dda956a2864ac6f6415861fe8"
+    },
+    {
+      "path": "translations/qt_da.qm",
+      "sha256": "7d1e5ca3310b54d104c19bf2abd402b38e584e87039a70e153c4a9af74b25c22"
+    },
+    {
+      "path": "translations/qt_de.qm",
+      "sha256": "ed828a83dfaa51944f166c842155b48ab3bd7cb2c46dcd96269eb5d48af4f63f"
+    },
+    {
+      "path": "translations/qt_en.qm",
+      "sha256": "494ac9a2b2cb2fdeced353f4a9f898ed8dcf616e9bc667438c62681e3f7f79cf"
+    },
+    {
+      "path": "translations/qt_es.qm",
+      "sha256": "4ffda56ba3bb5414ab0482d1dde64a6f226e3488f6b7f3f11a150e01f53fa4c8"
+    },
+    {
+      "path": "translations/qt_fa.qm",
+      "sha256": "f78e59b5bdd586181a999034ba418868ed17fe9c05707fb65e523f70e92253d2"
+    },
+    {
+      "path": "translations/qt_fi.qm",
+      "sha256": "e47fe13713e184d07fa4495dde0c589b0e8f562e91574a3558a9363443a4fa72"
+    },
+    {
+      "path": "translations/qt_fr.qm",
+      "sha256": "ea7ab2b4e927b8e95949397d10db73c2e42773bb9b66e1e08a23e247e7ebbfd4"
+    },
+    {
+      "path": "translations/qt_gd.qm",
+      "sha256": "63b439dd44139aa3aed54c2ebe03fa9bc77f22c14ed8fba8eff2608445bb233d"
+    },
+    {
+      "path": "translations/qt_he.qm",
+      "sha256": "e1ebca16afe8994356f81ca007fbdb9ddf865842010fe908923d873b687cad3f"
+    },
+    {
+      "path": "translations/qt_hr.qm",
+      "sha256": "bb9eec9a9a652c1340dc75eb2e749be50df00f885b3d6900dfc76799c45b244d"
+    },
+    {
+      "path": "translations/qt_hu.qm",
+      "sha256": "98463295539d769c8645a0b7fb95ad38454cfd0b14f36af485513f036ddbbbc6"
+    },
+    {
+      "path": "translations/qt_it.qm",
+      "sha256": "eddce0a4677b28c100d880bacd333846ce872b12ea9ff97384e4e21b658b3e93"
+    },
+    {
+      "path": "translations/qt_ja.qm",
+      "sha256": "2b9581c69b975f59be505b127cd3c19d403ef3d12e0e8386fb97238223e9c1df"
+    },
+    {
+      "path": "translations/qt_ka.qm",
+      "sha256": "e55e4b72fa620bebee5297ca59dfe2f49894a1e544f2b7485b1cfd8829289d6f"
+    },
+    {
+      "path": "translations/qt_kk.qm",
+      "sha256": "8bab72c453e87489d76cc7efffc57e947cbfa239dee4d6fa113f7b7b8cbd5b86"
+    },
+    {
+      "path": "translations/qt_ko.qm",
+      "sha256": "0179ed1b136e1cb3f583351eaa2c545ba3d83a6ee3f82c32505926a1a5f5f183"
+    },
+    {
+      "path": "translations/qt_lg.qm",
+      "sha256": "31c0cc4ce13b1d74fe0c19ed0b47638fb31e20c93ee08092533e884007aebfb5"
+    },
+    {
+      "path": "translations/qt_lv.qm",
+      "sha256": "846e047573ae40c83671c3ba7f73e27efc24b98c82701da0df9973e574178bb2"
+    },
+    {
+      "path": "translations/qt_nl.qm",
+      "sha256": "f61513bcdbb6ad800585f9437a95d018aab17fa12ee414aa31462ff279d8240e"
+    },
+    {
+      "path": "translations/qt_nn.qm",
+      "sha256": "f9f2fb7c60e7fcb38bbd3c1314ef122145594265e20b0659ff00004baab13ac7"
+    },
+    {
+      "path": "translations/qt_pl.qm",
+      "sha256": "3cf6b5c14d5eb0cf81e9af2066e66b3aa579a6b9b3c323ed670761f6254a8c54"
+    },
+    {
+      "path": "translations/qt_pt_BR.qm",
+      "sha256": "3475d61604b938d459949801a906dbd34a8ca824ade94120015d676e208da859"
+    },
+    {
+      "path": "translations/qt_ru.qm",
+      "sha256": "3da6605668f9178d11a838c4515478084dcfb4f9cf22f99d7a92b492db9c224b"
+    },
+    {
+      "path": "translations/qt_sk.qm",
+      "sha256": "d586ae2c314074cf398417fdecb40709d5478dfeb0a67c2fe60d509ee9b59ed7"
+    },
+    {
+      "path": "translations/qt_sv.qm",
+      "sha256": "5a2178dd2c03cc4516697f1fb0049649c9ed53f5cde6b937786733dae06aeda8"
+    },
+    {
+      "path": "translations/qt_tr.qm",
+      "sha256": "353fdfd7165659a49212e7a25bf91c0a71588e52c836f7496640f26782414634"
+    },
+    {
+      "path": "translations/qt_uk.qm",
+      "sha256": "4835b26fc4fccbf4444e4af1178ba89ada88d340ba74d61eae344d81b8a26461"
+    },
+    {
+      "path": "translations/qt_zh_CN.qm",
+      "sha256": "0481a9b92a6f0578400e960a7d5ee70217a6a450eaf7f98b7d32b8dbd0d58616"
+    },
+    {
+      "path": "translations/qt_zh_TW.qm",
+      "sha256": "21012b2b427f8d09d31ce9cae582ca27955b478ca3dc2ec18a3068d808638c6a"
+    },
+    {
+      "path": "vcruntime140.dll",
+      "sha256": "d5e4d9a3e835fa679450145d6a7d94e36573a509317111904d9b3712c30d9066"
+    },
+    {
+      "path": "vcruntime140_1.dll",
+      "sha256": "1f2d41c4aa5db0bc33ebf7b66d72943a817d7ce6cbe880502a9403823633093f"
+    }
+  ]
+}

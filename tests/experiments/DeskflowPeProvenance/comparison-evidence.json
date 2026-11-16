@@ -1,0 +1,29 @@
+{
+  "schema": "deskflow-pe-timestamp-comparison-v1",
+  "scope": "Only x64 PE32+ with exactly one debug entry; not source, runtime or license proof.",
+  "lengths": [
+    1117696,
+    1117696
+  ],
+  "raw_sha256": [
+    "04ce02fb644b2e3e80a23f50077aaca1168c5a1ea520e5d45e48aa68104cfffa",
+    "dca5d90b199f76b7ecb023aaa551b5ee14768962da9f4505bf9253552e4efdf7"
+  ],
+  "raw_equal": false,
+  "timestamp_offsets": [
+    [
+      304,
+      831444
+    ],
+    [
+      304,
+      831444
+    ]
+  ],
+  "different_byte_count": 6,
+  "normalized_sha256": [
+    "4394c285307a6a2d1c25667ae6d68a7a994fd1ef92e222b217758766d84ec143",
+    "4394c285307a6a2d1c25667ae6d68a7a994fd1ef92e222b217758766d84ec143"
+  ],
+  "normalized_equal": true
+}

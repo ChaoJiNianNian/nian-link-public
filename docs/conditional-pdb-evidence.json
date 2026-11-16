@@ -1,0 +1,61 @@
+{
+  "schema": "conditional-test-pdb-source-audit-v1",
+  "scope": "Historical isolated test assembly only; does not prove current product security or runtime behavior.",
+  "pdb_source_hash_algorithm": "SHA-256",
+  "assembly_sha256": "b86faac83128f2ad25ea5038df46c71fb6c4baa0389e9a9a20177aa5ae35f4f5",
+  "portable_pdb_sha256": "b7935633c503258514b936d0af7e8d539498ba578f8c3fa4f377c960f558879d",
+  "codeview_guid": "a1296ee9-7655-4567-8ee1-d4058930a27c",
+  "codeview_stamp": 3557871995,
+  "pdb_identity_matches_pe": true,
+  "document_count": 187,
+  "documents_same_as_current": 164,
+  "documents_changed_since_build": 22,
+  "changed_documents_recovered_by_exact_sha256": 14,
+  "unmatched_documents": [
+    {
+      "path": "tests/ConditionalCommitIsolation.Tests/CandidateDiscoveryRunTests.cs",
+      "sha256": "d78f690e9e81dbb2f6f3cfd589e58d9488126080c5391e71df9d294b9636569c"
+    },
+    {
+      "path": "src/DesktopToolbox.DeskLink/MultiDeviceCredentialVault.Snapshots.cs",
+      "sha256": "6b22a9bc6c971f27294d4019cdfe0272334d6ebcc9ce92a19855f92a3451a794"
+    },
+    {
+      "path": "src/DesktopToolbox.DeskLink/MultiPeerPairingCoordinator.cs",
+      "sha256": "02c35268c8a395929bf0e14c301df3de538ab505bd6ada7d3975a7413fbe7aca"
+    },
+    {
+      "path": "src/DesktopToolbox.DeskLink/MultiPeerRuntime.cs",
+      "sha256": "97354c49388b05a6bc00cb8bbfa3ef2cd088da316610bf774a355343da8d1544"
+    },
+    {
+      "path": "src/DesktopToolbox.DeskLink/PairingAuthenticatedChannel.cs",
+      "sha256": "0523f5b0d32ff04d26d4870363dbe23dc1fc21ae60fca2f5e280bede518d3fcc"
+    },
+    {
+      "path": "src/DesktopToolbox.DeskLink/PairingNoticeInbox.cs",
+      "sha256": "5ab20769db8af8128cabb893d23612f7992b94a932240c5f4124b2b073749fbf"
+    },
+    {
+      "path": "src/DesktopToolbox.DeskLink/SecurePairingPeer.cs",
+      "sha256": "709328b713ae2e317c82cf11478bc569a62f78d6c760ceb6473b450f61fe0491"
+    },
+    {
+      "path": "src/NianLink.CandidateDiscovery/CandidateDiscoveryRun.cs",
+      "sha256": "8357ea96cac85d6d35767489370741d4d053c8bb4f2736f616b15a4928be35ea"
+    }
+  ],
+  "generated_document_count": 1,
+  "generated_document_embedded_in_pdb": true,
+  "checked_git_blob_count_at_most_1mb": 1275,
+  "checked_git_head": "9abd0f846d24e502900243a48bec7a90c962b694",
+  "matching_git_blobs_for_unmatched": 0,
+  "parsed_additional_zip_count": 425,
+  "matching_additional_zip_sources": 0,
+  "limitations": [
+    "File hashes bind documented compiler input bytes, not whether the historical tests passed or the current product is safe.",
+    "Portable PDB/compiler output may not cover external tools, references, runtime inputs or unrecorded conditions.",
+    "Eight missing files are missing only from the bounded locations and archive types searched; absence elsewhere is not proved.",
+    "No account secrets, real pairing data, original binaries, PDB contents or absolute personal paths are included."
+  ]
+}

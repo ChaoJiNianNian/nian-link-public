@@ -1,0 +1,216 @@
+using System.Reflection;
+using DesktopToolbox.DeskLink;
+using DesktopToolbox.DeskLink.Collaboration;
+using DesktopToolbox.DeskLink.Preview;
+using DesktopToolbox.Mac.Services;
+
+namespace DesktopToolbox.Mac.Tests;
+
+public sealed partial class MacCollaborationIntegrationTests
+{
+    [Fact]
+    public async Task TransferFailureDoesNotEmitInternalReconnectAttempt()
+    {
+        await using var harness = await BoundaryHarness.OpenAsync();
+        using var folder = new RecoveryDirectory();
+        var runtimeField = typeof(BoundaryHarness).GetField("runtime", BindingFlags.NonPublic | BindingFlags.Instance);
+        var runtime = Assert.IsType<MultiPeerRuntime>(runtimeField!.GetValue(harness));
+        var lease = Assert.IsType<MacMultiPeerClient.CollaborationLease>(await harness.Owner.GetCollaborationLeaseAsync());
+        Assert.True(lease.TryEnter(out var registration));
+        using var operation = registration!;
+        await using var client = new CollaborationClient(lease.Pairing, true, lease.Pairing.DataPort, _ => lease.Suspend());
+        var file = System.IO.Path.Combine(folder.Path, "synthetic-transfer.txt");
+        await File.WriteAllTextAsync(file, "synthetic content");
+        var phases = new List<string>();
+        var progress = new SynchronousTransferProgress(value => phases.Add(value.State));
+        await runtime.StopAsync(CancellationToken.None);
+        await Assert.ThrowsAnyAsync<Exception>(() => client.SendFilesAsync([file], progress, operation.Token).WaitAsync(TimeSpan.FromSeconds(10)));
+        Assert.DoesNotContain("reconnecting", phases);
+    }
+
+    private sealed class SynchronousTransferProgress(Action<TransferProgress> callback) : IProgress<TransferProgress>
+    { public void Report(TransferProgress value) => callback(value); }
+
+    [Fact]
+    public async Task FileSendNetworkFailureRevokesLeaseBeforeInternalRetry()
+    {
+        await using var harness = await BoundaryHarness.OpenAsync();
+        using var folder = new RecoveryDirectory();
+        var runtimeField = typeof(BoundaryHarness).GetField("runtime", BindingFlags.NonPublic | BindingFlags.Instance);
+        Assert.NotNull(runtimeField);
+        var runtime = Assert.IsType<MultiPeerRuntime>(runtimeField.GetValue(harness));
+        var lease = Assert.IsType<MacMultiPeerClient.CollaborationLease>(await harness.Owner.GetCollaborationLeaseAsync());
+        await using var service = new MacCollaborationService(System.IO.Path.Combine(folder.Path, "service"), lease, new FakeMedia());
+        var retries = 0;
+        service.Changed += snapshot => { if (snapshot.Transfer?.State == "reconnecting") Interlocked.Increment(ref retries); };
+        await service.RefreshOnceAsync().WaitAsync(TimeSpan.FromSeconds(10));
+        var file = System.IO.Path.Combine(folder.Path, "synthetic.txt");
+        await File.WriteAllTextAsync(file, "synthetic content");
+        await runtime.StopAsync(CancellationToken.None);
+        await Assert.ThrowsAnyAsync<Exception>(() => service.SendFilesAsync([file]).WaitAsync(TimeSpan.FromSeconds(10)));
+        Assert.False(lease.IsActive);
+        Assert.Equal(0, Volatile.Read(ref retries));
+    }
+
+    [Fact]
+    public async Task SharingChoiceWaitingAtPreferenceGateCannotReenableAfterLeaseRevocation()
+    {
+        await using var harness = await BoundaryHarness.OpenAsync();
+        using var folder = new RecoveryDirectory();
+        var lease = Assert.IsType<MacMultiPeerClient.CollaborationLease>(await harness.Owner.GetCollaborationLeaseAsync());
+        await using var service = new MacCollaborationService(System.IO.Path.Combine(folder.Path, "service"), lease, new FakeMedia());
+        // A real TLS request establishes the service before the race. Do not run its
+        // periodic loop: the preference gate itself is the deterministic barrier.
+        await service.RefreshOnceAsync().WaitAsync(TimeSpan.FromSeconds(10));
+        Assert.True(service.Snapshot.IsOnline);
+        var field = typeof(MacCollaborationService).GetField("previewPreferenceGate", BindingFlags.NonPublic | BindingFlags.Instance);
+        Assert.NotNull(field);
+        var preferenceGate = Assert.IsType<SemaphoreSlim>(field.GetValue(service));
+        await preferenceGate.WaitAsync();
+        Task? enabling = null;
+        try
+        {
+            enabling = service.SetShareScreenEnabledAsync(true);
+            Assert.False(enabling.IsCompleted);
+            var drain = lease.Suspend();
+            Assert.False(lease.IsActive);
+            await drain.WaitAsync(TimeSpan.FromSeconds(10));
+        }
+        finally { preferenceGate.Release(); }
+        try { await enabling!; } catch (OperationCanceledException) { } catch (InvalidOperationException) { }
+        Assert.False(service.Snapshot.Settings.ShareScreenEnabled);
+    }
+
+    [Fact]
+    public async Task RevokedLeaseDoesNotSendClipboardSettingThroughOldClient()
+    {
+        await using var harness = await BoundaryHarness.OpenAsync();
+        using var folder = new RecoveryDirectory();
+        var field = typeof(BoundaryHarness).GetField("runtime", BindingFlags.NonPublic | BindingFlags.Instance);
+        Assert.NotNull(field);
+        var runtime = Assert.IsType<MultiPeerRuntime>(field.GetValue(harness));
+        var lease = Assert.IsType<MacMultiPeerClient.CollaborationLease>(await harness.Owner.GetCollaborationLeaseAsync());
+        await using var service = new MacCollaborationService(System.IO.Path.Combine(folder.Path, "service"), lease, new FakeMedia());
+        await service.RefreshOnceAsync().WaitAsync(TimeSpan.FromSeconds(10));
+        await service.SetClipboardEnabledAsync(true);
+        Assert.True((await runtime.GetClipboardStateAsync(harness.Owner.DeviceName, CancellationToken.None)).RemoteEnabled);
+        await lease.Suspend().WaitAsync(TimeSpan.FromSeconds(10));
+        try { await service.SetClipboardEnabledAsync(false); } catch (InvalidOperationException) { }
+        // Remote state proves whether an authenticated clipboard command was sent;
+        // local disable remains allowed even when no network command is sent.
+        Assert.True((await runtime.GetClipboardStateAsync(harness.Owner.DeviceName, CancellationToken.None)).RemoteEnabled);
+    }
+
+    [Fact]
+    public async Task OwnerRevocationCancelsActualInFlightLiveUploadBeforeDrain()
+    {
+        await using var harness = await BoundaryHarness.OpenAsync();
+        using var folder = new RecoveryDirectory();
+        var runtimeField = typeof(BoundaryHarness).GetField("runtime", BindingFlags.NonPublic | BindingFlags.Instance);
+        Assert.NotNull(runtimeField);
+        var runtime = Assert.IsType<MultiPeerRuntime>(runtimeField.GetValue(harness));
+        var getPeer = typeof(MultiPeerRuntime).GetMethod("GetPeer", BindingFlags.NonPublic | BindingFlags.Instance);
+        Assert.NotNull(getPeer);
+        var server = Assert.IsType<CollaborationServer>(getPeer.Invoke(runtime, [harness.Owner.DeviceName]));
+        var lease = Assert.IsType<MacMultiPeerClient.CollaborationLease>(await harness.Owner.GetCollaborationLeaseAsync());
+        var source = new ControlledLiveSource();
+        await using var service = new MacCollaborationService(System.IO.Path.Combine(folder.Path, "service"), lease, new FakeMedia(), liveCapture: source);
+        await service.RefreshOnceAsync().WaitAsync(TimeSpan.FromSeconds(10));
+        await service.SetShareScreenEnabledAsync(true);
+        await using var demand = server.LivePreview.RequestRemoteCapture(new());
+        await service.RefreshOnceAsync().WaitAsync(TimeSpan.FromSeconds(10));
+        using var captureDeadline = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+        while (Volatile.Read(ref source.Starts) == 0) await Task.Delay(20, captureDeadline.Token);
+
+        var drain = lease.Suspend();
+        using var stopDeadline = new CancellationTokenSource(TimeSpan.FromSeconds(3));
+        try { while (Volatile.Read(ref source.Stops) == 0) await Task.Delay(20, stopDeadline.Token); }
+        catch (OperationCanceledException) when (stopDeadline.IsCancellationRequested) { }
+        Assert.Equal(1, Volatile.Read(ref source.Stops));
+        await drain.WaitAsync(TimeSpan.FromSeconds(10));
+    }
+
+    [Fact]
+    public async Task DisposeCancelsLiveUploadBeforeBlockedPreviewReturnCompletes()
+    {
+        await using var harness = await BoundaryHarness.OpenAsync();
+        using var folder = new RecoveryDirectory();
+        var runtimeField = typeof(BoundaryHarness).GetField("runtime", BindingFlags.NonPublic | BindingFlags.Instance);
+        var runtime = Assert.IsType<MultiPeerRuntime>(runtimeField!.GetValue(harness));
+        var getPeer = typeof(MultiPeerRuntime).GetMethod("GetPeer", BindingFlags.NonPublic | BindingFlags.Instance);
+        var server = Assert.IsType<CollaborationServer>(getPeer!.Invoke(runtime, [harness.Owner.DeviceName]));
+        var lease = Assert.IsType<MacMultiPeerClient.CollaborationLease>(await harness.Owner.GetCollaborationLeaseAsync());
+        var source = new ControlledLiveSource();
+        var service = new MacCollaborationService(System.IO.Path.Combine(folder.Path, "service"), lease, new FakeMedia(), liveCapture: source);
+        var backend = new BlockingReturnBackend();
+        var session = service.RegisterDeskflowSessionForFixture(new DeskflowPreviewSession(backend, (_, _) => Task.CompletedTask));
+        Task? disposing = null;
+        try
+        {
+            await service.RefreshOnceAsync().WaitAsync(TimeSpan.FromSeconds(10));
+            await service.SetShareScreenEnabledAsync(true);
+            await using var demand = server.LivePreview.RequestRemoteCapture(new());
+            await service.RefreshOnceAsync().WaitAsync(TimeSpan.FromSeconds(10));
+            using var deadline = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+            while (Volatile.Read(ref source.Starts) == 0) await Task.Delay(20, deadline.Token);
+            session.ObserveFrame(new PreviewFrame { State = "live", Width = 1, Height = 1, JpegBytes = [1], CapturedAtUtc = DateTimeOffset.UtcNow });
+            await session.EnableAsync(deadline.Token);
+            Assert.True(session.IsActive);
+            disposing = service.DisposeAsync().AsTask();
+            await backend.ReturnStarted.Task.WaitAsync(TimeSpan.FromSeconds(10));
+            Assert.False(disposing.IsCompleted);
+            while (Volatile.Read(ref source.Stops) == 0) await Task.Delay(20, deadline.Token);
+            Assert.False(lease.IsActive);
+        }
+        finally
+        {
+            backend.ReleaseReturn.TrySetResult();
+            if (disposing is null) disposing = service.DisposeAsync().AsTask();
+            await disposing.WaitAsync(TimeSpan.FromSeconds(10));
+        }
+    }
+
+    [Fact]
+    public async Task OldTlsStatusCannotCommitCapabilitiesAfterOwnerStop()
+    {
+        await using var harness = await BoundaryHarness.OpenAsync();
+        using var folder = new RecoveryDirectory();
+        var lease = Assert.IsType<MacMultiPeerClient.CollaborationLease>(await harness.Owner.GetCollaborationLeaseAsync());
+        await using var service = new MacCollaborationService(System.IO.Path.Combine(folder.Path, "service"), lease, new FakeMedia());
+        var atCommit = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var release = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        service.TestBeforeStatusCommit = async () => { atCommit.TrySetResult(); await release.Task; };
+        var poll = service.RefreshOnceAsync();
+        Task? stopping = null;
+        try
+        {
+            await atCommit.Task.WaitAsync(TimeSpan.FromSeconds(10));
+            Assert.False(service.Snapshot.PassivePreviewGenerationSupported);
+            stopping = harness.Owner.StopAsync();
+            Assert.False(lease.IsActive);
+            Assert.False(stopping.IsCompleted);
+        }
+        finally { release.TrySetResult(); }
+        try { await poll.WaitAsync(TimeSpan.FromSeconds(10)); } catch (OperationCanceledException) { }
+        if (stopping is not null) await stopping.WaitAsync(TimeSpan.FromSeconds(10));
+        Assert.False(service.Snapshot.IsOnline);
+        Assert.False(service.Snapshot.PassivePreviewGenerationSupported);
+        Assert.Null(service.Snapshot.RemotePreviewSourceStatus);
+    }
+
+    private sealed class BlockingReturnBackend : IDeskflowPreviewControl
+    {
+        internal readonly TaskCompletionSource ReturnStarted = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        internal readonly TaskCompletionSource ReleaseReturn = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        private DeskflowPreviewState state = new();
+        public bool PreviewHandoffSupported => true;
+        public string PreviewReturnShortcut => "test";
+        public string PreviewHandoffHint => "test";
+        public Task<DeskflowPreviewState> BeginPreviewAsync(CancellationToken cancellationToken = default) =>
+            Task.FromResult(state = new() { Id = "test", Phase = DeskflowPreviewPhase.Active, ExpiresAtUtc = DateTimeOffset.UtcNow.AddSeconds(30) });
+        public Task<DeskflowPreviewState> RenewPreviewAsync(string id, CancellationToken cancellationToken = default) => Task.FromResult(state);
+        public async Task<DeskflowPreviewState> EndPreviewAsync(string id, CancellationToken cancellationToken = default)
+        { ReturnStarted.TrySetResult(); await ReleaseReturn.Task; return state = new(); }
+        public Task<DeskflowPreviewState> ReadPreviewAsync(CancellationToken cancellationToken = default) => Task.FromResult(state);
+    }
+}

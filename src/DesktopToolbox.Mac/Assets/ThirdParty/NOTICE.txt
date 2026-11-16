@@ -1,0 +1,9 @@
+Nian Desk Link / 年年电脑切换
+
+Avalonia 12.1.4 is open-source software under the MIT license. The pinned upstream license is included alongside this notice. No Avalonia XPF or professional tooling is included.
+The self-contained application includes Microsoft .NET runtime and transitive open-source packages. Exact package versions, license expressions and available package notices are included in NuGet-licenses.json and package-notices/.
+
+Deskflow is not bundled in this Mac application. It uses the user's separately installed official Deskflow.app/Contents/MacOS/deskflow-core without modifying that application. Deskflow source and licensing are available at https://github.com/deskflow/deskflow (pinned integration version 1.27.0; GPL-2.0-only WITH LicenseRef-OpenSSL-Exception).
+The shared DeskLink integration sources and modifications to the Windows core remain in the complete pc-toolbox source project. Pairing credentials, certificate private keys, trust databases and user profiles must not be redistributed.
+
+Mac 0.7.1 display interoperability uses the pinned MIT references retained in mac-ddc-mit.txt. Display I/O runs in a separate owned apphost child; no reference binaries are bundled.

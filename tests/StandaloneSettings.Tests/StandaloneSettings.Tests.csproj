@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><TargetFramework>net10.0</TargetFramework><IsPackable>false</IsPackable><IsTestProject>true</IsTestProject><Nullable>enable</Nullable><ImplicitUsings>enable</ImplicitUsings><DefineConstants>$(DefineConstants);DISCOVERY_PROFILE_TEST</DefineConstants></PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.1"><PrivateAssets>all</PrivateAssets></PackageReference>
+    <Compile Include="../../src/NianLink.Windows/StandaloneSettingsCoordinator.cs" Link="StandaloneSettingsCoordinator.cs" />
+    <Compile Include="../../src/NianLink.Windows/StandaloneOperationGate.cs" Link="StandaloneOperationGate.cs" />
+    <Compile Include="../../src/NianLink.Windows/DisplaySettingsImport.cs" Link="DisplaySettingsImport.cs" />
+    <Compile Include="../../src/NianLink.Windows/DisplayInputSelection.cs" Link="DisplayInputSelection.cs" />
+    <Compile Include="../../src/NianLink.MultiDevice/MultiDeviceDisplaySelection.cs" Link="MultiDeviceDisplaySelection.cs" />
+    <Compile Include="../../src/NianLink.MultiDevice/CandidatePathPolicy.cs" Link="CandidatePathPolicy.cs" />
+    <Compile Include="../../src/NianLink.MultiDevice/BetaPathPolicy.cs" Link="BetaPathPolicy.cs" />
+    <Compile Include="../../src/NianLink.MultiDevice/DiscoveryVolumePolicy.cs" Link="DiscoveryVolumePolicy.cs" />
+    <Compile Include="../../src/NianLink.Windows/DisplayDetectionCoordinator.cs" Link="DisplayDetectionCoordinator.cs" />
+    <Compile Include="../../src/NianLink.Windows/DisplayMappingGuard.cs" Link="DisplayMappingGuard.cs" />
+    <Compile Include="../../src/NianLink.Windows/MacPackageAvailability.cs" Link="MacPackageAvailability.cs" />
+    <Compile Include="../../src/DesktopToolbox.Windows/DeskSwitch/DeskSwitchSettings.cs" Link="DeskSwitchSettings.cs" />
+    <Compile Include="../../src/DesktopToolbox.Windows/DeskSwitch/MonitorInputCapabilities.cs" Link="MonitorInputCapabilities.cs" />
+    <Using Include="Xunit" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,36 @@
+/* A 12px native transparent gutter must contain the entire Windows shadow. */
+html body #nian-link-mini .nl-window {
+    box-shadow: 0 2px 4px var(--nl-shadow), inset 0 1px 0 light-dark(#ffffffdc, #ffffff20);
+}
+html body #nian-link-mini .nl-capsule {
+    box-shadow: 0 2px 4px var(--nl-shadow), inset 0 1px 0 light-dark(#fff, #ffffff28);
+}
+
+/* Windows multi-device candidate: the same clear-blue palette as its main window. */
+html body #nian-link-mini {
+    color-scheme: light;
+    --nl-text: #1b2c43;
+    --nl-muted: #65768b;
+    --nl-glass: #f6f9ff;
+    --nl-surface: #ffffff;
+    --nl-soft: #edf4ff;
+    --nl-line: #e4ebf4;
+    --nl-blue: #356feb;
+    --nl-button: #356feb;
+    --nl-button-text: #ffffff;
+    --nl-green: #24815d;
+    --nl-shadow: #35527b30;
+}
+html body #nian-link-mini .nl-window {
+    background: var(--nl-glass);
+    background-image: none;
+    border: 1px solid var(--nl-line);
+    border-radius: 15px;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+}
+html body #nian-link-mini .nl-brand,
+html body #nian-link-mini .nl-details {
+    background: var(--nl-surface);
+    box-shadow: none;
+}

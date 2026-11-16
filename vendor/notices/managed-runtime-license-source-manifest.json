@@ -1,0 +1,50 @@
+{
+  "records": [
+    {
+      "name": "MicroCom.Runtime",
+      "notice_files": [
+        {
+          "destination": "vendor/notices/MicroCom.Runtime-0.11.6/LICENSE.txt",
+          "sha256": "6ee769c9ac4dac9abb16b98b1341e9528ff9f4ab685481410d3376d14148f3a9"
+        },
+        {
+          "destination": "vendor/notices/MicroCom.Runtime-0.11.6/package.nuspec.txt",
+          "sha256": "c7aeab4b73acdba3bb8e66865c2bbe67566b8593d972be2089181344adef345f"
+        }
+      ],
+      "nupkg_asset_path": "lib/net8.0/MicroCom.Runtime.dll",
+      "nupkg_sha512": "6357e26e35bdcc31a1adb458f1eba1273026e138865b7f7098ce0cdf29135c317f58afa0a8c015b64c5b6315ce02c496413bc178bfd726935d8d32af63f732c1",
+      "published_asset": "MicroCom.Runtime.dll",
+      "published_asset_sha256": "2538ec6f3c24e901a90e33c37788b9a4e4b6ae8158cab7328a00a00bb28eab9e",
+      "source_archive_sha256": "4a1fbd2ec746082f9e879ee58b88b3d733955a3cd6bfb4af58efafe5b3a9126c",
+      "source_commit": "76785efcafd91b5902fd19dd11145f6dd655b7b4",
+      "source_license_path": "MicroCom-76785efcafd91b5902fd19dd11145f6dd655b7b4/LICENSE",
+      "source_url": "https://codeload.github.com/kekekeks/MicroCom/zip/76785efcafd91b5902fd19dd11145f6dd655b7b4",
+      "version": "0.11.6"
+    },
+    {
+      "name": "Tmds.DBus.Protocol",
+      "notice_files": [
+        {
+          "destination": "vendor/notices/Tmds.DBus.Protocol-0.94.1/LICENSE.txt",
+          "sha256": "aca3b49277abcc7886ccb2f115603a9f5b15fc3f96019a10c00f2974098b210c"
+        },
+        {
+          "destination": "vendor/notices/Tmds.DBus.Protocol-0.94.1/package.nuspec.txt",
+          "sha256": "72830040b14d42de24d85be271fce22d608614360bc6bbc46762fd4a5039651a"
+        }
+      ],
+      "nupkg_asset_path": "lib/net9.0/Tmds.DBus.Protocol.dll",
+      "nupkg_sha512": "97a1d09bf372e13ca01fb7715294e3f46f56a22206090b9c788df337681706b2a14b3d92a5be499716fda40449ad23dbc72496eb9848cbd92aeaed576465398c",
+      "published_asset": "Tmds.DBus.Protocol.dll",
+      "published_asset_sha256": "60a1c5255731d8ac843cab53108be8ba1ed02759ce3db0da5b49939ebe97bd8a",
+      "source_archive_sha256": "c75e721ac9c04bb1e288ae04a92c9066cbcbab67635a6ead66b67d77a686e5e9",
+      "source_commit": "b4a7fed0b878f74cb54f7cca84d2889af4e596ba",
+      "source_license_path": "Tmds.DBus-b4a7fed0b878f74cb54f7cca84d2889af4e596ba/COPYING",
+      "source_url": "https://codeload.github.com/tmds/Tmds.DBus/zip/b4a7fed0b878f74cb54f7cca84d2889af4e596ba",
+      "version": "0.94.1"
+    }
+  ],
+  "schema": "managed-publish-notices-v1",
+  "scope": "macOS arm64 managed publish; not complete release"
+}

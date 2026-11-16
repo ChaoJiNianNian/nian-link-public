@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF><IsPackable>false</IsPackable><IsTestProject>true</IsTestProject>
+    <Nullable>enable</Nullable><ImplicitUsings>enable</ImplicitUsings>
+    <!-- A separate test-only assembly uses the existing friend boundary. -->
+    <AssemblyName>MultiPeerTrust.Tests</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.1"><PrivateAssets>all</PrivateAssets></PackageReference>
+    <Using Include="Xunit" />
+    <ProjectReference Include="../../../src/DesktopToolbox.DeskLink/DesktopToolbox.DeskLink.csproj" />
+    <Compile Include="../../../src/NianLink.Windows/WindowsCredentialProtector.cs" Link="WindowsCredentialProtector.cs" />
+  </ItemGroup>
+  <Target Name="RequireExplicitGrantResearch" BeforeTargets="PrepareForBuild" Condition="'$(NianFenceResearchIsolatedTest)' != 'true'">
+    <Error Text="Grant identity research requires the isolated research build flag." />
+  </Target>
+</Project>

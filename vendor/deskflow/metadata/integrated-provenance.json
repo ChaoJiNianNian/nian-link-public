@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "upstreamVersion": "1.27.0",
+  "upstreamCommit": "081f6478e654a112168879e67a41ce7d7e4ae3af",
+  "sourceArchive": "https://codeload.github.com/deskflow/deskflow/zip/081f6478e654a112168879e67a41ce7d7e4ae3af",
+  "sourceSha256": "8493dfa58dbeac161a8b25d5b3cb7cb8546b5f4d99a216fcd65296b220a864f0",
+  "controlProtocolVersion": 1,
+  "patch": "patches/0001-current-user-native-control.patch",
+  "patchSha256": "4553424fcf97b368c4356d647d5ed25b7e529daba1b00fe4cebd6a8f047e5324",
+  "coreSha256": "6d06f16034edad54e6d51aad3df45e1e90e0c1d88b34489a69ff1cd5bd39b751",
+  "buildScript": "scripts/build-native-deskflow.ps1",
+  "configuration": "Release; x64; C++20; BUILD_TESTS=OFF; BUILD_INSTALLER=OFF; RC /c65001",
+  "toolchain": {
+    "compiler": "MSVC 19.44.35229.0",
+    "msvcPackageVersion": "14.44.17.14",
+    "msvcInstallLayoutVersion": "14.44.35207",
+    "redistVersion": "14.44.35112",
+    "windowsSdk": "10.0.26100.0",
+    "qt": "6.8.3 MSVC2022 x64",
+    "openssl": "3.5.9 shared no-asm no-tests",
+    "perl": "Strawberry Perl 5.34.3.1",
+    "jom": "1.1.7",
+    "nasm": "2.16.03"
+  },
+  "dependencySources": [
+    {
+      "name": "QtBase",
+      "version": "6.8.3",
+      "url": "https://download.qt.io/archive/qt/6.8/6.8.3/submodules/qtbase-everywhere-src-6.8.3.tar.xz",
+      "sha256": "56001b905601bb9023d399f3ba780d7fa940f3e4861e496a7c490331f49e0b80",
+      "localPath": "dependency-sources/qtbase-everywhere-src-6.8.3.tar.xz"
+    },
+    {
+      "name": "OpenSSL",
+      "version": "3.5.9",
+      "url": "https://github.com/openssl/openssl/releases/download/openssl-3.5.9/openssl-3.5.9.tar.gz",
+      "sha256": "603f5602e2eef00d77fbd429d34dcd5822bb301757a1bc9cdb24c670f1eb859a",
+      "localPath": "dependency-sources/openssl-3.5.9.tar.gz"
+    }
+  ],
+  "validation": {
+    "nativeTransportChecks": 13,
+    "nativeSharedInputCoreSmoke": "passed isolated loopback: original IPC Listening, native state, local idempotent, offline/unknown rejected, revision stable, owned process stopped",
+    "hardwareHandoff": "not performed in native build task",
+    "macArm64": "not built in native Windows task",
+    "smokeEvidence": ".artifacts/desk-link-integrated-core-check-ea91c250/result.json",
+    "runtimeFilesVerified": 60
+  },
+  "runtimeManifestSha256": "2ef19504292f5408d6c5adc7e405eed4b79be64d7c8354916e0b3c057adf378c"
+}

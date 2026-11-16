@@ -1,0 +1,25 @@
+--- a/src/lib/deskflow/control/DeskToolboxControl.cpp
++++ b/src/lib/deskflow/control/DeskToolboxControl.cpp
+@@ -13,5 +13,8 @@
+ #include <QPointer>
+ #include <QRegularExpression>
++#ifdef NIAN_NATIVE_FENCE_TEST
++#include <cstdio>
++#endif
+ 
+ DeskToolboxControl::DeskToolboxControl(Submit submit, QObject *parent)
+     : QObject(parent), m_server(this), m_submit(std::move(submit))
+@@ -69,6 +72,13 @@
+     const auto newline = it->buffer.indexOf('\n');
+     if (newline < 0) {
+       if (it->buffer.size() > MaxFrame) socket->abort();
++#ifdef NIAN_NATIVE_FENCE_TEST
++      // Fixture barrier only: JSON object arrived, but its frame delimiter has not.
++      if (it->buffer.size() <= MaxFrame && it->buffer.endsWith('}')) {
++        std::fputs("PARTIAL_BUFFERED\n", stdout);
++        std::fflush(stdout);
++      }
++#endif
+       return;
+     }
+     if (newline > MaxFrame) { socket->abort(); return; }

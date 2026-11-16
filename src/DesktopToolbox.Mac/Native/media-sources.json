@@ -1,0 +1,9 @@
+{
+  "schema": "swift-source-set-v1",
+  "sources": [
+    "DeskLinkMedia.swift",
+    "RealtimeCapture.swift",
+    "RealtimeCaptureOutput.swift"
+  ],
+  "buildScript": "build-media.sh"
+}

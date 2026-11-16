@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(NianFilelessPairingCandidate)' == 'true' And '$(NianFilelessPairingIsolatedTest)' == 'true' And '$(NianPairingDiagnostics)' == 'true'">
+    <DefineConstants>$(DefineConstants);FILELESS_PAIRING_DIAGNOSTICS</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(NianFilelessPairingCandidate)' == 'true' And '$(NianFilelessPairingIsolatedTest)' == 'true' And '$(NianPairingDiagnostics)' == 'true'">
+    <AssemblyMetadata Include="NianPairingDiagnostics" Value="true" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="MultiDevice.Windows.Tests" />
+    <ProjectReference Include="../DesktopToolbox.DeskLink/DesktopToolbox.DeskLink.csproj" />
+  </ItemGroup>
+</Project>

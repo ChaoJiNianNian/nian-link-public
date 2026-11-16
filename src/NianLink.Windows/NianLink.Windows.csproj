@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType><TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
+    <UseWPF>true</UseWPF><UseWindowsForms>true</UseWindowsForms><SupportedOSPlatformVersion>10.0.19041.0</SupportedOSPlatformVersion>
+    <AssemblyName>NianLink</AssemblyName><ApplicationIcon>../../assets/brand/NianLink.ico</ApplicationIcon><DefineConstants>$(DefineConstants);PREVIEW_CONTROL_ENGINE</DefineConstants>
+  </PropertyGroup>
+  <Target Name="RejectFilelessIsolatedTestOnFormalBuild" BeforeTargets="PrepareForBuild" Condition="'$(NianFilelessPairingIsolatedTest)' == 'true'">
+    <Error Text="The isolated fileless test gate cannot be enabled for the formal Windows project." />
+  </Target>
+  <ItemGroup>
+    <Resource Include="../../assets/brand/NianLinkBrand.png" Link="Assets/NianLinkBrand.png" />
+    <InternalsVisibleTo Include="NianLink.Smoke" />
+    <InternalsVisibleTo Include="NianLink.Smoke.Tests" />
+    <ProjectReference Include="../DesktopToolbox.Core/DesktopToolbox.Core.csproj" />
+    <ProjectReference Include="../DesktopToolbox.Windows/DesktopToolbox.Windows.csproj" />
+    <ProjectReference Include="../DesktopToolbox.DisplayBridge/DesktopToolbox.DisplayBridge.csproj" ReferenceOutputAssembly="false" />
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.4258.31" />
+    <Compile Include="../DesktopToolbox.App/DeskLink/*.cs" Link="DeskLink/%(Filename)%(Extension)" />
+    <Compile Include="../DesktopToolbox.App/Drawer/DrawerWindowPolicy.cs" Link="Platform/DrawerWindowPolicy.cs" />
+    <Compile Include="../DesktopToolbox.App/Drawer/DrawerDesktopEnvironment.cs" Link="Platform/DrawerDesktopEnvironment.cs" />
+    <Compile Include="../DesktopToolbox.App/Hosting/NativePrompts.cs" Link="Platform/NativePrompts.cs" />
+    <Compile Include="../DesktopToolbox.App/Hosting/SingleInstance.cs" Link="Platform/SingleInstance.cs" />
+    <Content Include="../DesktopToolbox.Collaboration.Ui/**/*" Link="CollaborationUi/%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <Content Include="../DesktopToolbox.App/DeskLink/mini-windows.css" Link="CollaborationUi/mini-windows.css" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+  <Target Name="CopyDisplayBridge" AfterTargets="Build">
+    <ItemGroup><DisplayBridgeFiles Include="../DesktopToolbox.DisplayBridge/bin/$(Configuration)/$(TargetFramework)/$(RuntimeIdentifier)/DisplayBridge.exe;../DesktopToolbox.DisplayBridge/bin/$(Configuration)/$(TargetFramework)/$(RuntimeIdentifier)/DisplayBridge.dll;../DesktopToolbox.DisplayBridge/bin/$(Configuration)/$(TargetFramework)/$(RuntimeIdentifier)/DisplayBridge.deps.json;../DesktopToolbox.DisplayBridge/bin/$(Configuration)/$(TargetFramework)/$(RuntimeIdentifier)/DisplayBridge.runtimeconfig.json" /></ItemGroup>
+    <Copy SourceFiles="@(DisplayBridgeFiles)" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true" />
+  </Target>
+  <Target Name="PublishDisplayBridgeAssembly" BeforeTargets="ComputeFilesToPublish" DependsOnTargets="CopyDisplayBridge">
+    <ItemGroup>
+      <ResolvedFileToPublish Include="../DesktopToolbox.DisplayBridge/bin/$(Configuration)/$(TargetFramework)/$(RuntimeIdentifier)/DisplayBridge.dll" RelativePath="DisplayBridge.dll" CopyToPublishDirectory="PreserveNewest" />
+    </ItemGroup>
+  </Target>
+</Project>

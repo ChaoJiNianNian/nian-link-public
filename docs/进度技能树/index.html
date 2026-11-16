@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>年年互联 · 开发技能树</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="progress.js" defer></script>
+  <script src="tree.js" defer></script>
+</head>
+<body>
+  <main class="shell">
+    <header class="hero">
+      <div class="eyebrow"><span class="pulse"></span> NIAN LINK / DEVELOPMENT MAP</div>
+      <h1>年年互联 <span>开发技能树</span></h1>
+      <p id="overview"></p>
+      <div class="hero-foot"><strong id="current"></strong><span id="updated"></span></div>
+    </header>
+    <section class="legend" aria-label="状态说明">
+      <span><i class="dot done"></i>已完成的验证</span><span><i class="dot tested"></i>部分实测</span><span><i class="dot active"></i>开发中</span><span><i class="dot pending"></i>待开发 / 待完善</span><span><i class="dot verify"></i>待验收</span>
+      <small>“已完成”限定于卡片列出的验证；“部分实测”不代表整个功能已正式发布。</small>
+    </section>
+    <div id="tree" class="tree"></div>
+    <footer>每个开发增量完成后更新此页 · 详细事实以项目计划为准</footer>
+  </main>
+  <noscript>请在浏览器中启用 JavaScript 后查看进度。</noscript>
+</body>
+</html>

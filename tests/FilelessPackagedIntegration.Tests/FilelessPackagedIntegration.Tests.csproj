@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
+    <AssemblyName>FilelessCandidateIntegration.Tests</AssemblyName>
+    <IsPackable>false</IsPackable><IsTestProject>true</IsTestProject>
+    <Nullable>enable</Nullable><ImplicitUsings>enable</ImplicitUsings>
+    <NianFilelessPackagedHostBinaryDirectory Condition="'$(NianFilelessPackagedHostBinaryDirectory)' == ''">$(NianFilelessPackagedBinaryDirectory)</NianFilelessPackagedHostBinaryDirectory>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="DesktopToolbox.DeskLink"><HintPath>$(NianFilelessPackagedBinaryDirectory)/DesktopToolbox.DeskLink.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="NianLink.CandidateDiscovery"><HintPath>$(NianFilelessPackagedHostBinaryDirectory)/NianLink.CandidateDiscovery.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="Nian.Input.Core"><HintPath>$(NianFilelessPackagedBinaryDirectory)/Nian.Input.Core.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="Nian.Input.Control"><HintPath>$(NianFilelessPackagedBinaryDirectory)/Nian.Input.Control.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="Nian.Input.Security"><HintPath>$(NianFilelessPackagedBinaryDirectory)/Nian.Input.Security.dll</HintPath><Private>true</Private></Reference>
+    <Compile Include="../FilelessCandidateIntegration.Tests/HighLevelPairingTests.cs" Link="HighLevelPairingTests.cs" />
+    <AssemblyMetadata Include="NianFilelessBinaryDirectory" Value="$(NianFilelessPackagedBinaryDirectory)" />
+    <AssemblyMetadata Include="NianFilelessHostBinaryDirectory" Value="$(NianFilelessPackagedHostBinaryDirectory)" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.1"><PrivateAssets>all</PrivateAssets></PackageReference>
+    <Using Include="Xunit" />
+  </ItemGroup>
+  <Target Name="RequirePackagedBinaryInputs" BeforeTargets="PrepareForBuild"
+    Condition="'$(NianFilelessPackagedBinaryDirectory)' == '' Or '$(UseArtifactsOutput)' != 'true'">
+    <Error Text="This test requires the explicit packaged binary directory and isolated artifacts output." />
+  </Target>
+</Project>

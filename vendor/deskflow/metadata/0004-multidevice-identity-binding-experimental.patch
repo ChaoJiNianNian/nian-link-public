@@ -1,0 +1,178 @@
+diff --git a/src/lib/net/SecureSocket.h b/src/lib/net/SecureSocket.h
+--- a/src/lib/net/SecureSocket.h
++++ b/src/lib/net/SecureSocket.h
+@@ -12,6 +12,7 @@
+ 
+ #include <memory>
+ #include <mutex>
++#include <string>
+ 
+ class Event;
+ class IEventQueue;
+@@ -67,6 +68,7 @@
+   JobResult doWrite() override;
+   void initSsl(bool server);
+   bool loadCertificate(const QString &filename);
++  std::string peerFingerprintSha256();
+ 
+ private:
+   // SSL
+diff --git a/src/lib/net/SecureSocket.cpp b/src/lib/net/SecureSocket.cpp
+--- a/src/lib/net/SecureSocket.cpp
++++ b/src/lib/net/SecureSocket.cpp
+@@ -613,6 +613,17 @@
+   sendEvent(StreamInputShutdown);
+ }
+ 
++std::string SecureSocket::peerFingerprintSha256()
++{
++  std::scoped_lock ssl_lock{ssl_mutex_};
++  if (!m_secureReady || !m_ssl || !m_ssl->m_ssl || m_securityLevel != SecurityLevel::PeerAuth) return {};
++  const auto cert = SSL_get_peer_certificate(m_ssl->m_ssl);
++  if (!cert) return {};
++  const auto sha256 = deskflow::sslCertFingerprint(cert, QCryptographicHash::Sha256);
++  X509_free(cert);
++  return sha256.isValid() ? deskflow::formatSSLFingerprint(sha256.data, false).toStdString() : std::string{};
++}
++
+ bool SecureSocket::verifyCertFingerprint(const QString &FingerprintDatabasePath) const
+ {
+   const auto cert = SSL_get_peer_certificate(m_ssl->m_ssl);
+diff --git a/src/lib/server/ClientListener.cpp b/src/lib/server/ClientListener.cpp
+--- a/src/lib/server/ClientListener.cpp
++++ b/src/lib/server/ClientListener.cpp
+@@ -16,6 +16,7 @@
+ #include "net/IDataSocket.h"
+ #include "net/IListenSocket.h"
+ #include "net/ISocketFactory.h"
++#include "net/SecureSocket.h"
+ #include "net/SocketException.h"
+ #include "server/ClientProxy.h"
+ #include "server/ClientProxyUnknown.h"
+@@ -162,7 +163,9 @@
+   assert(m_server != nullptr);
+ 
+   // create proxy for unknown client
+-  auto *client = new ClientProxyUnknown(stream, 30.0, m_server, m_events);
++  auto *secure = qEnvironmentVariableIsSet("NIANDESKLINK_PEER_BINDINGS") ? dynamic_cast<SecureSocket *>(socket) : nullptr;
++  auto *client = new ClientProxyUnknown(stream, 30.0, m_server, m_events,
++      secure ? secure->peerFingerprintSha256() : std::string{});
+ 
+   m_newClients.insert(client);
+ 
+diff --git a/src/lib/server/ClientProxyUnknown.h b/src/lib/server/ClientProxyUnknown.h
+--- a/src/lib/server/ClientProxyUnknown.h
++++ b/src/lib/server/ClientProxyUnknown.h
+@@ -21,7 +21,7 @@
+ class ClientProxyUnknown
+ {
+ public:
+-  ClientProxyUnknown(deskflow::IStream *stream, double timeout, Server *server, IEventQueue *events);
++  ClientProxyUnknown(deskflow::IStream *stream, double timeout, Server *server, IEventQueue *events, std::string peerFingerprint = {});
+   ClientProxyUnknown(ClientProxyUnknown const &) = delete;
+   ClientProxyUnknown(ClientProxyUnknown &&) = delete;
+   ~ClientProxyUnknown();
+@@ -68,4 +68,5 @@
+   bool m_ready = false;
+   Server *m_server = nullptr;
+   IEventQueue *m_events = nullptr;
++  std::string m_peerFingerprint;
+ };
+diff --git a/src/lib/server/ClientProxyUnknown.cpp b/src/lib/server/ClientProxyUnknown.cpp
+--- a/src/lib/server/ClientProxyUnknown.cpp
++++ b/src/lib/server/ClientProxyUnknown.cpp
+@@ -13,6 +13,7 @@
+ #include "deskflow/DeskflowException.h"
+ #include "deskflow/ProtocolTypes.h"
+ #include "deskflow/ProtocolUtil.h"
++#include "deskflow/control/PeerIdentityBindings.h"
+ #include "io/IStream.h"
+ #include "server/ClientProxy1_0.h"
+ #include "server/ClientProxy1_1.h"
+@@ -29,10 +30,11 @@
+ // ClientProxyUnknown
+ //
+ 
+-ClientProxyUnknown::ClientProxyUnknown(deskflow::IStream *stream, double timeout, Server *server, IEventQueue *events)
++ClientProxyUnknown::ClientProxyUnknown(deskflow::IStream *stream, double timeout, Server *server, IEventQueue *events, std::string peerFingerprint)
+     : m_stream(stream),
+       m_server(server),
+-      m_events(events)
++      m_events(events),
++      m_peerFingerprint(std::move(peerFingerprint))
+ {
+   assert(m_server != nullptr);
+ 
+@@ -211,6 +213,15 @@
+     // disallow invalid version numbers
+     if (major <= 0 || minor < 0) {
+       throw IncompatibleClientException(major, minor);
++    }
++
++    // Opt-in multi-device mode binds the name from this handshake to the
++    // certificate authenticated on this exact socket. Missing bindings deny.
++    if (qEnvironmentVariableIsSet("NIANDESKLINK_PEER_BINDINGS") &&
++        !PeerIdentityBindings::allows(qEnvironmentVariable("NIANDESKLINK_PEER_BINDINGS"),
++            QString::fromStdString(name), QByteArray::fromStdString(m_peerFingerprint))) {
++      LOG_WARN("peer identity binding rejected");
++      throw BadClientException();
+     }
+ 
+     // remove stream event handlers.  the proxy we're about to create
+diff --git a/src/lib/deskflow/control/PeerIdentityBindings.h b/src/lib/deskflow/control/PeerIdentityBindings.h
+new file mode 100644
+--- /dev/null
++++ b/src/lib/deskflow/control/PeerIdentityBindings.h
+@@ -0,0 +1,52 @@
++/*
++ * DesktopToolbox integration for Deskflow.
++ * SPDX-FileCopyrightText: (C) 2026 DesktopToolbox contributors
++ * SPDX-License-Identifier: GPL-2.0-only WITH LicenseRef-OpenSSL-Exception
++ */
++#pragma once
++#include <QFile>
++#include <QFileInfo>
++#include <QJsonArray>
++#include <QJsonDocument>
++#include <QJsonObject>
++#include <QRegularExpression>
++#include <QSet>
++
++class PeerIdentityBindings
++{
++public:
++  static bool allows(const QString &path, const QString &name, const QByteArray &actualFingerprint)
++  {
++    static const QRegularExpression validName(QStringLiteral("\\A[A-Za-z0-9_.-]{1,64}\\z"));
++    static const QRegularExpression validFingerprint(QStringLiteral("\\A[0-9A-Fa-f]{64}\\z"));
++    const auto actual = QString::fromLatin1(actualFingerprint).toUpper();
++    if (!validName.match(name).hasMatch() || !validFingerprint.match(actual).hasMatch() ||
++        path.isEmpty() || QFileInfo(path).isSymLink()) return false;
++    QFile file(path);
++    if (!file.open(QIODevice::ReadOnly) || file.size() <= 0 || file.size() > 65536) return false;
++    QJsonParseError error;
++    const auto document = QJsonDocument::fromJson(file.readAll(), &error);
++    if (error.error != QJsonParseError::NoError || !document.isObject()) return false;
++    const auto root = document.object();
++    const auto peers = root.value("peers");
++    if (root.value("version").toInt(-1) != 1 || !peers.isArray() || peers.toArray().size() > 4) return false;
++    QSet<QString> names;
++    QSet<QString> fingerprints;
++    bool matched = false;
++    for (const auto &value : peers.toArray()) {
++      if (!value.isObject()) return false;
++      const auto entry = value.toObject();
++      const auto peerName = entry.value("name");
++      const auto peerFingerprint = entry.value("fingerprint");
++      if (!peerName.isString() || !peerFingerprint.isString()) return false;
++      const auto n = peerName.toString();
++      const auto f = peerFingerprint.toString().toUpper();
++      if (!validName.match(n).hasMatch() || !validFingerprint.match(f).hasMatch() ||
++          names.contains(n.toLower()) || fingerprints.contains(f)) return false;
++      names.insert(n.toLower());
++      fingerprints.insert(f);
++      if (n.compare(name, Qt::CaseInsensitive) == 0 && f == actual) matched = true;
++    }
++    return matched;
++  }
++};

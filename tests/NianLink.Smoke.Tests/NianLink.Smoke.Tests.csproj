@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><TargetFramework>net10.0-windows10.0.19041.0</TargetFramework><UseWPF>true</UseWPF><IsPackable>false</IsPackable><IsTestProject>true</IsTestProject><Nullable>enable</Nullable><ImplicitUsings>enable</ImplicitUsings></PropertyGroup>
+  <ItemGroup>
+    <AssemblyMetadata Include="NianSyntheticWorkRoot" Value="$([MSBuild]::NormalizeDirectory('$(MSBuildThisFileDirectory)../.work'))" />
+    <Compile Include="../TestSupport/SyntheticWorkDirectory.cs" Link="SyntheticWorkDirectory.cs" />
+    <ProjectReference Include="../../src/NianLink.Windows/NianLink.Windows.csproj" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.1"><PrivateAssets>all</PrivateAssets></PackageReference>
+    <Compile Include="../NianLink.Smoke/SmokeProfilePolicy.cs" Link="SmokeProfilePolicy.cs" />
+    <Compile Include="../NianLink.Smoke/OfflineMiniService.cs" Link="OfflineMiniService.cs" />
+    <Using Include="Xunit" />
+  </ItemGroup>
+</Project>

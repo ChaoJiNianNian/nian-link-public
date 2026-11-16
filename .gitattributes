@@ -1,0 +1,6 @@
+# Preserve audited upstream source, patches and notices byte for byte.
+/vendor/deskflow/metadata/*.patch -text
+/vendor/deskflow/metadata/licenses/** -text
+/vendor/notices/** -text
+/THIRD-PARTY-NOTICES/** -text
+/docs/screenshots/*.png -text
